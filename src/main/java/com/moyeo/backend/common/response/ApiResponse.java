@@ -1,7 +1,9 @@
 package com.moyeo.backend.common.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.Schema;
 
+@Schema(description = "공통 RESPONSE DTO ")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ApiResponse<T> (
         String status,
