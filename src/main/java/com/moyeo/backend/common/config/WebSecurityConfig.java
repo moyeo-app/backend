@@ -22,6 +22,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers(
+                                "/auth/**",
                                 "/users/register",
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
