@@ -5,10 +5,12 @@ import com.moyeo.backend.user.domain.Character;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Schema(description = "사용자 등록 REQUEST DTO")
+@Builder
 public class RegisterRequestDto {
     @NotNull
     private Provider provider;
