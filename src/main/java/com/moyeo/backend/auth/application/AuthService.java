@@ -5,5 +5,5 @@ import com.moyeo.backend.auth.presentaion.dtos.LoginResponseDto;
 
 public interface AuthService {
 
-    LoginResponseDto loginWithKakao(LoginRequestDto dto);
+    LoginResponseDto login(String provider, LoginRequestDto dto);
 }

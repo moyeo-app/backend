@@ -8,10 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j(topic = "AuthController")
 @RestController
@@ -21,9 +18,11 @@ public class AuthController implements AuthControllerDocs {
 
     private final AuthService authService;
 
-    @PostMapping("/kakao")
-    public ResponseEntity<ApiResponse<LoginResponseDto>> loginWithKakao(@Valid @RequestBody LoginRequestDto requestDto) {
+    @PostMapping("/{provider}")
+    public ResponseEntity<ApiResponse<LoginResponseDto>> login(
+            @PathVariable String provider,
+            @Valid @RequestBody LoginRequestDto requestDto) {
         log.info("accessToken : {}", requestDto.getAccessToken());
-        return ResponseEntity.ok().body(ApiResponse.success(authService.loginWithKakao(requestDto)));
+        return ResponseEntity.ok().body(ApiResponse.success(authService.login(provider, requestDto)));
     }
 }

@@ -1,10 +1,11 @@
 package com.moyeo.backend.auth.application;
 
+import com.moyeo.backend.auth.domain.OAuthUserInfo;
 import com.moyeo.backend.auth.domain.Oauth;
 import com.moyeo.backend.auth.domain.OauthRepository;
 import com.moyeo.backend.auth.domain.Provider;
-import com.moyeo.backend.auth.infrastructure.KakaoService;
-import com.moyeo.backend.auth.infrastructure.KakaoUserInfoDto;
+import com.moyeo.backend.auth.infrastructure.client.OAuthProviderService;
+import com.moyeo.backend.auth.infrastructure.factory.OAuthProviderFactory;
 import com.moyeo.backend.auth.presentaion.dtos.LoginRequestDto;
 import com.moyeo.backend.auth.presentaion.dtos.LoginResponseDto;
 import com.moyeo.backend.auth.util.JwtUtil;
@@ -19,19 +20,19 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    private final KakaoService kakaoService;
+    private final OAuthProviderFactory providerFactory;
     private final OauthRepository oauthRepository;
     private final JwtUtil jwtUtil;
 
     @Override
-    public LoginResponseDto loginWithKakao(LoginRequestDto dto) {
-        String accessToken = dto.getAccessToken();
+    public LoginResponseDto login(String provider, LoginRequestDto dto) {
+        OAuthProviderService providerService = providerFactory.getProvider(provider);
+        OAuthUserInfo userInfo = providerService.getUserInfo(dto.getAccessToken());
+        String oauthId = userInfo.getOauthId();
 
-        KakaoUserInfoDto kakaoUserInfoDto = kakaoService.getKakaoUserInfo(accessToken);
-        String oauthId = String.valueOf(kakaoUserInfoDto.getId());
-        log.info("oauthId: {}", oauthId);
+        log.info("provider: {} oauthId: {}", provider, oauthId);
 
-        return isNewUser(oauthId, Provider.KAKAO);
+        return isNewUser(oauthId, Provider.valueOf(provider.toUpperCase()));
     }
 
     private LoginResponseDto isNewUser(String oauthId, Provider provider) {

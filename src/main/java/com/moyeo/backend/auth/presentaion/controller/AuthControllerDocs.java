@@ -10,6 +10,6 @@ import org.springframework.http.ResponseEntity;
 @Tag(name = "소셜 로그인 API Controller", description = "소셜 로그인 API 목록입니다.")
 public interface AuthControllerDocs {
 
-    @Operation(summary = "카카오 소셜 로그인 API", description = "카카오 소셜 로그인 API 입니다.")
-    ResponseEntity<ApiResponse<LoginResponseDto>> loginWithKakao(LoginRequestDto requestDto);
+    @Operation(summary = "소셜 로그인 API", description = "소셜 로그인 API 입니다.")
+    ResponseEntity<ApiResponse<LoginResponseDto>> login(String provider, LoginRequestDto requestDto);
 }
