@@ -130,4 +130,92 @@ class AuthServiceImplTest {
         });
         assertEquals(ErrorCode.EXPIRED_OAUTH_TOKEN, ex.getResponseCode());
     }
+
+    @Test
+    @DisplayName("구글 로그인 성공 테스트 - 신규 사용자")
+    void loginWithGoogle_성공_테스트_신규_사용자() {
+        // given
+        String provider = "google";
+        String accessToken = "token";
+        LoginRequestDto requestDto = LoginRequestDto.builder()
+                .accessToken(accessToken)
+                .build();
+
+        OAuthUserInfo userInfo = mock(OAuthUserInfo.class);
+
+        when(providerFactory.getProvider(provider)).thenReturn(providerService);
+        when(providerService.getUserInfo(accessToken)).thenReturn(userInfo);
+        when(userInfo.getOauthId()).thenReturn("1");
+        when(oauthRepository.findByOauthIdAndProvider("1", Provider.GOOGLE))
+                .thenReturn(Optional.empty());
+
+        // when
+        LoginResponseDto responseDto = authService.login(provider, requestDto);
+
+        // then
+        assertTrue(responseDto.isNewUser());
+        assertEquals("1", responseDto.getOauthId());
+    }
+
+    @Test
+    @DisplayName("구글 로그인 성공 테스트 - 기존 사용자")
+    void loginWithGoogle_성공_테스트_기존_사용자() {
+        // given
+        String provider = "google";
+        String accessToken = "token";
+        String userId = "UUID-USER-1";
+        String nickname = "코딩짱짱맨";
+        LoginRequestDto requestDto = LoginRequestDto.builder()
+                .accessToken(accessToken)
+                .build();
+
+        User user = User.builder()
+                .id(userId)
+                .nickname(nickname)
+                .build();
+
+        Oauth oauth = Oauth.builder()
+                .user(user)
+                .oauthId("1")
+                .provider(Provider.KAKAO)
+                .build();
+
+        OAuthUserInfo userInfo = mock(OAuthUserInfo.class);
+
+        when(providerFactory.getProvider(provider)).thenReturn(providerService);
+        when(providerService.getUserInfo(accessToken)).thenReturn(userInfo);
+        when(userInfo.getOauthId()).thenReturn("1");
+        when(oauthRepository.findByOauthIdAndProvider("1", Provider.GOOGLE))
+                .thenReturn(Optional.of(oauth));
+        when(jwtUtil.createToken(userId, nickname))
+                .thenReturn("jwtToken");
+
+        // when
+        LoginResponseDto responseDto = authService.login(provider, requestDto);
+
+        // then
+        assertFalse(responseDto.isNewUser());
+        assertEquals("jwtToken", responseDto.getJwtAccessToken());
+    }
+
+    @Test
+    @DisplayName("구글 로그인 실패 테스트 - 만료 토큰")
+    void loginWithGoogle_실패_테스트_만료_토큰() {
+        // given
+        String provider = "google";
+        String accessToken = "expired-token";
+        LoginRequestDto requestDto = LoginRequestDto.builder()
+                .accessToken(accessToken)
+                .build();
+
+        when(providerFactory.getProvider(provider)).thenReturn(providerService);
+        when(providerService.getUserInfo(accessToken))
+                .thenThrow(new CustomException(ErrorCode.EXPIRED_OAUTH_TOKEN));
+
+        // when & then
+        CustomException ex = assertThrows(CustomException.class, () -> {
+            authService.login(provider, requestDto);
+        });
+        assertEquals(ErrorCode.EXPIRED_OAUTH_TOKEN, ex.getResponseCode());
+    }
 }
