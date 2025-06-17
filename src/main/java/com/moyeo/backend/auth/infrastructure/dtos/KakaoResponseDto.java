@@ -1,10 +1,10 @@
-package com.moyeo.backend.auth.infrastructure;
+package com.moyeo.backend.auth.infrastructure.dtos;
 
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder
-public class KakaoUserInfoDto {
+public class KakaoResponseDto {
     private Long id;
 }
