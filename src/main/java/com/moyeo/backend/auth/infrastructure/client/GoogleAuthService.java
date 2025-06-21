@@ -2,9 +2,8 @@ package com.moyeo.backend.auth.infrastructure.client;
 
 import com.moyeo.backend.auth.domain.OAuthUserInfo;
 import com.moyeo.backend.auth.infrastructure.adapter.GoogleUserInfo;
-import com.moyeo.backend.auth.infrastructure.adapter.KakaoUserInfo;
 import com.moyeo.backend.auth.infrastructure.dtos.GoogleResponseDto;
-import com.moyeo.backend.auth.infrastructure.dtos.KakaoResponseDto;
+import com.moyeo.backend.auth.infrastructure.dtos.TokenResponse;
 import com.moyeo.backend.common.enums.ErrorCode;
 import com.moyeo.backend.common.exception.CustomException;
 import lombok.extern.slf4j.Slf4j;
@@ -36,5 +35,10 @@ public class GoogleAuthService extends AbstractOAuthProviderService{
             log.error("구글 API 요청 실패 : {}", e.getMessage());
             throw new CustomException(ErrorCode.OAUTH_API_CALL_FAILED);
         }
+    }
+
+    @Override
+    public TokenResponse getAccessToken(String authorizationCode) {
+        return null;
     }
 }
