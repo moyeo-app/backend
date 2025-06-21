@@ -1,6 +1,7 @@
 package com.moyeo.backend.auth.presentaion.controller;
 
 import com.moyeo.backend.auth.application.AuthService;
+import com.moyeo.backend.auth.infrastructure.dtos.TokenRequestDto;
 import com.moyeo.backend.auth.presentaion.dtos.LoginRequestDto;
 import com.moyeo.backend.auth.presentaion.dtos.LoginResponseDto;
 import com.moyeo.backend.common.response.ApiResponse;
@@ -24,5 +25,13 @@ public class AuthController implements AuthControllerDocs {
             @Valid @RequestBody LoginRequestDto requestDto) {
         log.info("accessToken : {}", requestDto.getAccessToken());
         return ResponseEntity.ok().body(ApiResponse.success(authService.login(provider, requestDto)));
+    }
+
+    @PostMapping("/{provider}/callback")
+    public ResponseEntity<ApiResponse<LoginResponseDto>> callback(
+            @PathVariable String provider,
+            @Valid @RequestBody TokenRequestDto requestDto) {
+        log.info("code : {}", requestDto.getCode());
+        return ResponseEntity.ok().body(ApiResponse.success(authService.callback(provider, requestDto)));
     }
 }

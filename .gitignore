@@ -7,9 +7,6 @@ build/
 *.iml
 out/
 
-# 환경 설정
-application.yml
-
 # Compiled class file
 *.class
 
