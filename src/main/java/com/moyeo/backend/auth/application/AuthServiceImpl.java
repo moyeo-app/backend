@@ -5,6 +5,8 @@ import com.moyeo.backend.auth.domain.Oauth;
 import com.moyeo.backend.auth.domain.OauthRepository;
 import com.moyeo.backend.auth.domain.Provider;
 import com.moyeo.backend.auth.infrastructure.client.OAuthProviderService;
+import com.moyeo.backend.auth.infrastructure.dtos.TokenRequestDto;
+import com.moyeo.backend.auth.infrastructure.dtos.TokenResponse;
 import com.moyeo.backend.auth.infrastructure.factory.OAuthProviderFactory;
 import com.moyeo.backend.auth.presentaion.dtos.LoginRequestDto;
 import com.moyeo.backend.auth.presentaion.dtos.LoginResponseDto;
@@ -31,6 +33,18 @@ public class AuthServiceImpl implements AuthService {
         String oauthId = userInfo.getOauthId();
 
         log.info("provider: {} oauthId: {}", provider, oauthId);
+
+        return isNewUser(oauthId, Provider.valueOf(provider.toUpperCase()));
+    }
+
+    @Override
+    public LoginResponseDto callback(String provider, TokenRequestDto dto) {
+        OAuthProviderService providerService = providerFactory.getProvider(provider);
+        TokenResponse kakaoTokenResponse = providerService.getAccessToken(dto.getCode());
+        OAuthUserInfo userInfo = providerService.getUserInfo(kakaoTokenResponse.getAccessToken());
+        String oauthId = userInfo.getOauthId();
+
+        log.info("provider: {} code : {} oauthId: {}", provider, dto.getCode(), oauthId);
 
         return isNewUser(oauthId, Provider.valueOf(provider.toUpperCase()));
     }
