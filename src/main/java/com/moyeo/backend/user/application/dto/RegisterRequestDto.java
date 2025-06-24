@@ -1,4 +1,4 @@
-package com.moyeo.backend.user.presentaion.dtos;
+package com.moyeo.backend.user.application.dto;
 
 import com.moyeo.backend.auth.domain.Provider;
 import com.moyeo.backend.user.domain.Character;

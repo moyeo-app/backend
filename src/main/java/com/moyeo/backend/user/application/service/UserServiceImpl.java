@@ -1,4 +1,4 @@
-package com.moyeo.backend.user.application;
+package com.moyeo.backend.user.application.service;
 
 import com.moyeo.backend.auth.domain.Oauth;
 import com.moyeo.backend.auth.domain.OauthRepository;
@@ -6,8 +6,8 @@ import com.moyeo.backend.common.enums.ErrorCode;
 import com.moyeo.backend.common.exception.CustomException;
 import com.moyeo.backend.user.domain.User;
 import com.moyeo.backend.user.domain.UserRepository;
-import com.moyeo.backend.user.presentaion.dtos.RegisterRequestDto;
-import com.moyeo.backend.user.presentaion.dtos.UserResponseDto;
+import com.moyeo.backend.user.application.dto.RegisterRequestDto;
+import com.moyeo.backend.user.application.dto.UserResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
         return UserResponseDto.builder().userId(user.getId()).build();
     }
 
-    private void validNickname(String nickname) {
+    public void validNickname(String nickname) {
         Optional<User> user = userRepository.findByNickname(nickname);
 
         if (user.isPresent()) {

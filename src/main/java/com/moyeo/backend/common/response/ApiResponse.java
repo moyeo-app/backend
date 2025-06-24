@@ -15,6 +15,10 @@ public record ApiResponse<T> (
         return new ApiResponse<>("success", 200, "API 요청이 성공했습니다.", data);
     }
 
+    public static ApiResponse<Void> success() {
+        return new ApiResponse<>("success", 200, "API 요청이 성공했습니다.", null);
+    }
+
     public static ApiResponse<Object> fail(ResponseCode responseCode) {
         return new ApiResponse<>("fail", responseCode.getStatus().value(), responseCode.getMessage(), null);
     }
