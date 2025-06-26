@@ -12,15 +12,19 @@ import lombok.Getter;
 @Schema(description = "사용자 등록 REQUEST DTO")
 @Builder
 public class RegisterRequestDto {
+    @Schema(description = "소셜 로그인 종류 (KAKAO, GOOGLE)", example = "KAKAO")
     @NotNull
     private Provider provider;
 
+    @Schema(description = "소셜 로그인 고유 사용자 ID", example = "1122385832637846")
     @NotBlank
     private String oauthId;
 
+    @Schema(description = "닉네임", example = "코딩짱짱맨")
     @NotBlank
     private String nickname;
 
+    @Schema(description = "캐릭터 (BEAR, RABBIT, CAT, PIG)", example = "BEAR")
     @NotNull
     private Character character;
 }

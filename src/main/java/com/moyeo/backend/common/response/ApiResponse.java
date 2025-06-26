@@ -6,9 +6,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Schema(description = "공통 RESPONSE DTO ")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ApiResponse<T> (
+        @Schema(description = "API 요청 상태 (success, fail)", example = "success")
         String status,
+        
+        @Schema(description = "상태 코드", example = "200")
         int code,
+
+        @Schema(description = "응답 메시지", example = "API 요청이 성공했습니다.")
         String message,
+
+        @Schema(description = "응답 데이터")
         T data
 ) {
     public static <T> ApiResponse<T> success(T data) {

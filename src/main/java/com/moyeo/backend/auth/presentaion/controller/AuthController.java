@@ -1,9 +1,9 @@
 package com.moyeo.backend.auth.presentaion.controller;
 
 import com.moyeo.backend.auth.application.AuthService;
-import com.moyeo.backend.auth.infrastructure.dtos.TokenRequestDto;
-import com.moyeo.backend.auth.presentaion.dtos.LoginRequestDto;
-import com.moyeo.backend.auth.presentaion.dtos.LoginResponseDto;
+import com.moyeo.backend.auth.application.dto.TokenRequestDto;
+import com.moyeo.backend.auth.application.dto.LoginRequestDto;
+import com.moyeo.backend.auth.application.dto.LoginResponseDto;
 import com.moyeo.backend.common.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j(topic = "AuthController")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/auth/login")
+@RequestMapping("/v1/auth/login")
 public class AuthController implements AuthControllerDocs {
 
     private final AuthService authService;

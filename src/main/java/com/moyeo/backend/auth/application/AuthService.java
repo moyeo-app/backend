@@ -1,8 +1,8 @@
 package com.moyeo.backend.auth.application;
 
-import com.moyeo.backend.auth.infrastructure.dtos.TokenRequestDto;
-import com.moyeo.backend.auth.presentaion.dtos.LoginRequestDto;
-import com.moyeo.backend.auth.presentaion.dtos.LoginResponseDto;
+import com.moyeo.backend.auth.application.dto.TokenRequestDto;
+import com.moyeo.backend.auth.application.dto.LoginRequestDto;
+import com.moyeo.backend.auth.application.dto.LoginResponseDto;
 
 public interface AuthService {
 
