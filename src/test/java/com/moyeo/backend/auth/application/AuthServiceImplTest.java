@@ -6,8 +6,8 @@ import com.moyeo.backend.auth.domain.OauthRepository;
 import com.moyeo.backend.auth.domain.Provider;
 import com.moyeo.backend.auth.infrastructure.client.OAuthProviderService;
 import com.moyeo.backend.auth.infrastructure.factory.OAuthProviderFactory;
-import com.moyeo.backend.auth.presentaion.dtos.LoginRequestDto;
-import com.moyeo.backend.auth.presentaion.dtos.LoginResponseDto;
+import com.moyeo.backend.auth.application.dto.LoginRequestDto;
+import com.moyeo.backend.auth.application.dto.LoginResponseDto;
 import com.moyeo.backend.auth.util.JwtUtil;
 import com.moyeo.backend.common.enums.ErrorCode;
 import com.moyeo.backend.common.exception.CustomException;
@@ -122,13 +122,13 @@ class AuthServiceImplTest {
 
         when(providerFactory.getProvider(provider)).thenReturn(providerService);
         when(providerService.getUserInfo(accessToken))
-                .thenThrow(new CustomException(ErrorCode.EXPIRED_OAUTH_TOKEN));
+                .thenThrow(new CustomException(ErrorCode.INVALID_OAUTH_TOKEN));
 
         // when & then
         CustomException ex = assertThrows(CustomException.class, () -> {
             authService.login(provider, requestDto);
         });
-        assertEquals(ErrorCode.EXPIRED_OAUTH_TOKEN, ex.getResponseCode());
+        assertEquals(ErrorCode.INVALID_OAUTH_TOKEN, ex.getResponseCode());
     }
 
     @Test
@@ -210,12 +210,12 @@ class AuthServiceImplTest {
 
         when(providerFactory.getProvider(provider)).thenReturn(providerService);
         when(providerService.getUserInfo(accessToken))
-                .thenThrow(new CustomException(ErrorCode.EXPIRED_OAUTH_TOKEN));
+                .thenThrow(new CustomException(ErrorCode.INVALID_OAUTH_TOKEN));
 
         // when & then
         CustomException ex = assertThrows(CustomException.class, () -> {
             authService.login(provider, requestDto);
         });
-        assertEquals(ErrorCode.EXPIRED_OAUTH_TOKEN, ex.getResponseCode());
+        assertEquals(ErrorCode.INVALID_OAUTH_TOKEN, ex.getResponseCode());
     }
 }

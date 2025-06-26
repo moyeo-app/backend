@@ -13,7 +13,7 @@ public enum ErrorCode implements ResponseCode {
 
     // OAuth
     OAUTH_API_CALL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "OAuth API 호출에 실패했습니다."),
-    EXPIRED_OAUTH_TOKEN(HttpStatus.BAD_REQUEST, "만료된 OAuth Access 토큰입니다."),
+    INVALID_OAUTH_TOKEN(HttpStatus.BAD_REQUEST, "잘못된 OAuth Access 토큰입니다."),
 
     // USER
     NICKNAME_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 사용 중인 닉네임입니다.");

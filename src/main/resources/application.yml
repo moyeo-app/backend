@@ -29,12 +29,16 @@ springdoc:
     operationsSorter: method
     tagsSorter: alpha
     docExpansion: none
-
-kakao:
-  client_id: ${KAKAO_CLIENT_ID}
-  redirect_uri: ${KAKAO_REDIRECT_URI}
-
-google:
-  client_id: ${GOOGLE_CLIENT_ID}
-  client_secret: ${GOOGLE_CLIENT_SECRET}
-  redirect_uri: ${GOOGLE_REDIRECT_URI}
+oauth:
+  providers:
+    kakao:
+      client_id: ${KAKAO_CLIENT_ID}
+      redirect_uri: ${KAKAO_REDIRECT_URI}
+      token-uri: https://kauth.kakao.com/oauth/token
+      user-info-uri: https://kapi.kakao.com/v2/user/me
+    google:
+      client_id: ${GOOGLE_CLIENT_ID}
+      client_secret: ${GOOGLE_CLIENT_SECRET}
+      redirect_uri: ${GOOGLE_REDIRECT_URI}
+      token-uri: https://oauth2.googleapis.com/token
+      user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
