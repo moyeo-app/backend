@@ -50,7 +50,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private LoginResponseDto isNewUser(String oauthId, Provider provider) {
-        Optional<Oauth> oauth = oauthRepository.findByOauthIdAndProvider(oauthId, provider);
+        Optional<Oauth> oauth = oauthRepository.findByOauthIdAndProviderAndIsDeletedFalse(oauthId, provider);
 
         if (!oauth.isPresent()) {
             return LoginResponseDto.builder()

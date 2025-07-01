@@ -1,5 +1,6 @@
 package com.moyeo.backend.auth.domain;
 
+import com.moyeo.backend.common.domain.BaseEntity;
 import com.moyeo.backend.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,7 +11,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Oauth {
+public class Oauth extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
