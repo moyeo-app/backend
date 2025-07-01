@@ -101,7 +101,7 @@ class AuthServiceImplTest {
 
             OAuthUserInfo userInfo = mockUserInfo(oauthId);
             when(providerService.getUserInfo(accessToken)).thenReturn(userInfo);
-            when(oauthRepository.findByOauthIdAndProvider(oauthId, enumProvider))
+            when(oauthRepository.findByOauthIdAndProviderAndIsDeletedFalse(oauthId, enumProvider))
                     .thenReturn(Optional.empty());
 
             // when
@@ -128,7 +128,7 @@ class AuthServiceImplTest {
 
             OAuthUserInfo userInfo = mockUserInfo(oauthId);
             when(providerService.getUserInfo(accessToken)).thenReturn(userInfo);
-            when(oauthRepository.findByOauthIdAndProvider(oauthId, enumProvider))
+            when(oauthRepository.findByOauthIdAndProviderAndIsDeletedFalse(oauthId, enumProvider))
                     .thenReturn(Optional.of(oauth));
             when(jwtUtil.createToken(userId, nickname))
                     .thenReturn(jwtToken);
@@ -184,7 +184,7 @@ class AuthServiceImplTest {
             when(providerService.getAccessToken(code)).thenReturn(tokenResponse);
             when(providerService.getUserInfo(tokenResponse.getAccessToken())).thenReturn(userInfo);
 
-            when(oauthRepository.findByOauthIdAndProvider(oauthId, enumProvider))
+            when(oauthRepository.findByOauthIdAndProviderAndIsDeletedFalse(oauthId, enumProvider))
                     .thenReturn(Optional.empty());
 
             // when
@@ -219,7 +219,7 @@ class AuthServiceImplTest {
             OAuthUserInfo userInfo = mockUserInfo(oauthId);
             when(providerService.getAccessToken(code)).thenReturn(tokenResponse);
             when(providerService.getUserInfo(tokenResponse.getAccessToken())).thenReturn(userInfo);
-            when(oauthRepository.findByOauthIdAndProvider(oauthId, enumProvider))
+            when(oauthRepository.findByOauthIdAndProviderAndIsDeletedFalse(oauthId, enumProvider))
                     .thenReturn(Optional.of(oauth));
             when(jwtUtil.createToken(userId, nickname))
                     .thenReturn(jwtToken);
