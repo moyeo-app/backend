@@ -1,21 +1,27 @@
 package com.moyeo.backend.user.application;
 
+import com.moyeo.backend.auth.application.mapper.OauthMapper;
+import com.moyeo.backend.auth.application.mapper.OauthMapperImpl;
 import com.moyeo.backend.auth.domain.Oauth;
 import com.moyeo.backend.auth.domain.OauthRepository;
 import com.moyeo.backend.auth.domain.Provider;
 import com.moyeo.backend.common.enums.ErrorCode;
 import com.moyeo.backend.common.exception.CustomException;
+import com.moyeo.backend.user.application.dto.RegisterRequestDto;
+import com.moyeo.backend.user.application.dto.UserResponseDto;
+import com.moyeo.backend.user.application.mapper.UserMapper;
+import com.moyeo.backend.user.application.mapper.UserMapperImpl;
 import com.moyeo.backend.user.application.service.UserServiceImpl;
+import com.moyeo.backend.user.domain.Bank;
 import com.moyeo.backend.user.domain.Character;
 import com.moyeo.backend.user.domain.User;
 import com.moyeo.backend.user.domain.UserRepository;
-import com.moyeo.backend.user.application.dto.RegisterRequestDto;
-import com.moyeo.backend.user.application.dto.UserResponseDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
@@ -37,6 +43,12 @@ class UserServiceImplTest {
     @Mock
     private OauthRepository oauthRepository;
 
+    @Spy
+    private UserMapper userMapper = new UserMapperImpl();
+
+    @Spy
+    private OauthMapper oauthMapper = new OauthMapperImpl();
+
     @Test
     @DisplayName("사용자 등록 API 성공 테스트")
     void register_성공_테스트() {
@@ -46,8 +58,11 @@ class UserServiceImplTest {
                 .oauthId("1234567890")
                 .nickname("코딩짱짱맨")
                 .character(Character.BEAR)
+                .bank(Bank.KB)
+                .accountNumber("812702-02-442698")
                 .build();
-        when(userRepository.findByNickname("코딩짱짱맨")).thenReturn(Optional.empty());
+
+        when(userRepository.findByNicknameAndIsDeletedFalse("코딩짱짱맨")).thenReturn(Optional.empty());
 
         // when
         UserResponseDto responseDto = userService.register(requestDto);
@@ -68,7 +83,7 @@ class UserServiceImplTest {
                 .nickname("코딩짱짱맨")
                 .character(Character.BEAR)
                 .build();
-        when(userRepository.findByNickname("코딩짱짱맨")).thenReturn(Optional.of(User.builder().nickname("코딩짱짱맨").build()));
+        when(userRepository.findByNicknameAndIsDeletedFalse("코딩짱짱맨")).thenReturn(Optional.of(User.builder().nickname("코딩짱짱맨").build()));
 
         // when & then
         CustomException ex = assertThrows(CustomException.class, () -> {

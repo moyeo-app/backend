@@ -1,6 +1,7 @@
 package com.moyeo.backend.user.application.dto;
 
 import com.moyeo.backend.auth.domain.Provider;
+import com.moyeo.backend.user.domain.Bank;
 import com.moyeo.backend.user.domain.Character;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -27,4 +28,12 @@ public class RegisterRequestDto {
     @Schema(description = "캐릭터 (BEAR, RABBIT, CAT, PIG)", example = "BEAR")
     @NotNull
     private Character character;
+
+    @Schema(description = "은행 (KB, SHINHAN, WOORI, NH, HANA, TOSS, KAKAO)", example = "KB")
+    @NotNull
+    private Bank bank;
+
+    @Schema(description = "계좌 번호", example = "812702-02-442698")
+    @NotNull
+    private String accountNumber;
 }

@@ -5,5 +5,5 @@ import java.util.Optional;
 public interface OauthRepository {
     Oauth save(Oauth oauth);
 
-    Optional<Oauth> findByOauthIdAndProvider(String oauthId, Provider provider);
+    Optional<Oauth> findByOauthIdAndProviderAndIsDeletedFalse(String oauthId, Provider provider);
 }

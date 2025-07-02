@@ -42,3 +42,12 @@ oauth:
       redirect_uri: ${GOOGLE_REDIRECT_URI}
       token-uri: https://oauth2.googleapis.com/token
       user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, prometheus
+  endpoint:
+    health:
+      show-components: never

@@ -29,7 +29,8 @@ public class WebSecurityConfig {
                                 "/v3/api-docs",
                                 "/v3/api-docs/**",
                                 "/api-docs",
-                                "/api-docs/**"
+                                "/api-docs/**",
+                                "/actuator/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 );
