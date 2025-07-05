@@ -14,6 +14,7 @@ import com.moyeo.backend.auth.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -27,6 +28,7 @@ public class AuthServiceImpl implements AuthService {
     private final JwtUtil jwtUtil;
 
     @Override
+    @Transactional
     public LoginResponseDto login(String provider, LoginRequestDto dto) {
         OAuthProviderService providerService = providerFactory.getProvider(provider);
         OAuthUserInfo userInfo = providerService.getUserInfo(dto.getAccessToken());
@@ -38,6 +40,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public LoginResponseDto callback(String provider, TokenRequestDto dto) {
         OAuthProviderService providerService = providerFactory.getProvider(provider);
         TokenResponse kakaoTokenResponse = providerService.getAccessToken(dto.getCode());

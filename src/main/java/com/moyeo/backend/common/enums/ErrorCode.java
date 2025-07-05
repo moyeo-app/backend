@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum ErrorCode implements ResponseCode {
 
+    // Common
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
 
     // OAuth
@@ -16,7 +17,9 @@ public enum ErrorCode implements ResponseCode {
     INVALID_OAUTH_TOKEN(HttpStatus.BAD_REQUEST, "잘못된 OAuth Access 토큰입니다."),
 
     // USER
-    NICKNAME_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 사용 중인 닉네임입니다.");
+    NICKNAME_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 사용 중인 닉네임입니다."),
+    OAUTH_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 등록된 OAuth ID 입니다."),
+    ACCOUNT_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 등록된 계좌번호입니다.");
 
     private final HttpStatus status;
     private final String message;
