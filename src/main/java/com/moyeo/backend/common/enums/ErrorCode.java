@@ -11,6 +11,9 @@ public enum ErrorCode implements ResponseCode {
 
     // Common
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 JWT 토큰입니다."),
+    MISSING_TOKEN(HttpStatus.UNAUTHORIZED, "JWT 토큰이 입력되지 않았습니다."),
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자 정보를 찾을 수 없습니다."),
 
     // OAuth
     OAUTH_API_CALL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "OAuth API 호출에 실패했습니다."),
