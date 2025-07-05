@@ -6,4 +6,8 @@ public interface UserRepository {
     Optional<User> findByNicknameAndIsDeletedFalse(String nickname);
 
     User save(User user);
+
+    Optional<User> findByAccountNumberAndIsDeletedFalse(String accountNumber);
+
+    Optional<User> findByIdAndIsDeletedFalse(String userId);
 }
