@@ -4,8 +4,17 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public enum Role {
-    USER("일반 사용자"),
-    ADMIN("관리자");
+    USER(Authority.USER),
+    ADMIN(Authority.ADMIN);
 
-    private final String description;
+    private final String authority;
+
+    public String getAuthority() {
+        return this.authority;
+    }
+
+    public static class Authority {
+        public static final String USER = "ROLE_USER";
+        public static final String ADMIN = "ROLE_ADMIN";
+    }
 }
