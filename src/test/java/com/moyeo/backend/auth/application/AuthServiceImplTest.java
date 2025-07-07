@@ -3,6 +3,7 @@ package com.moyeo.backend.auth.application;
 import com.moyeo.backend.auth.application.dto.LoginRequestDto;
 import com.moyeo.backend.auth.application.dto.LoginResponseDto;
 import com.moyeo.backend.auth.application.dto.TokenRequestDto;
+import com.moyeo.backend.auth.application.service.AuthServiceImpl;
 import com.moyeo.backend.auth.domain.OAuthUserInfo;
 import com.moyeo.backend.auth.domain.Oauth;
 import com.moyeo.backend.auth.domain.OauthRepository;

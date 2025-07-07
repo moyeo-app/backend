@@ -1,6 +1,6 @@
 package com.moyeo.backend.auth.presentaion.controller;
 
-import com.moyeo.backend.auth.application.AuthService;
+import com.moyeo.backend.auth.application.service.AuthService;
 import com.moyeo.backend.auth.application.dto.TokenRequestDto;
 import com.moyeo.backend.auth.application.dto.LoginRequestDto;
 import com.moyeo.backend.auth.application.dto.LoginResponseDto;
