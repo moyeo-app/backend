@@ -3,6 +3,8 @@ package com.moyeo.backend.common.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.util.List;
+
 @Schema(description = "공통 RESPONSE DTO ")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ApiResponse<T> (
@@ -28,5 +30,9 @@ public record ApiResponse<T> (
 
     public static ApiResponse<Object> fail(ResponseCode responseCode) {
         return new ApiResponse<>("fail", responseCode.getStatus().value(), responseCode.getMessage(), null);
+    }
+
+    public static ApiResponse<Object> fail(ResponseCode responseCode, List<String> errors) {
+        return new  ApiResponse<>("fail", responseCode.getStatus().value(), responseCode.getMessage(), errors);
     }
 }
