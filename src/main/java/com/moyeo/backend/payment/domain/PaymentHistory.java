@@ -22,6 +22,10 @@ public class PaymentHistory extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "challenge_id")
+    private Challenge challenge;
+
     @Column(nullable = false)
     private int totalAmount;
 
@@ -42,4 +46,8 @@ public class PaymentHistory extends BaseEntity {
 
     @Column(nullable = false, unique = true)
     private String orderId;
+
+    public void updateChallenge(Challenge challenge) {
+        this.challenge = challenge;
+    }
 }
