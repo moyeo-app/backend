@@ -34,16 +34,8 @@ public class PaymentServiceImpl implements PaymentService {
         // user 정보 가져오기
         User currentUser = userContextService.getCurrentUser();
 
-        // 소유권 체크 - orderId 비교
-        if (!requestDto.getOrderId().contains(currentUser.getId())) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED);
-        }
-
-        // 이미 생성된 결제인지 확인
-        Optional<PaymentHistory> payment = paymentRepository.findByPaymentKeyAndIsDeletedFalse(requestDto.getPaymentKey());
-        if (payment.isPresent()) {
-            throw new CustomException(ErrorCode.PAYMENT_ALREADY_EXISTS);
-        }
+        validUser(currentUser.getId(), requestDto.getOrderId());
+        validPayment(requestDto.getPaymentKey());
 
         PaymentHistory paymentHistory = paymentMapper.toPayment(
                 requestDto,
@@ -52,11 +44,25 @@ public class PaymentServiceImpl implements PaymentService {
                 PaymentStatus.SUCCESS
         );
 
-        // save
         paymentRepository.save(paymentHistory);
 
         return PaymentResponseDto.builder()
                 .paymentId(paymentHistory.getId())
                 .build();
+    }
+
+    // 소유권 체크 - orderId 비교
+    private void validUser(String userId, String orderId) {
+        if (!orderId.contains(userId)) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+    }
+
+    // 이미 생성된 결제인지 확인
+    private void validPayment(String paymentKey) {
+        Optional<PaymentHistory> payment = paymentRepository.findByPaymentKeyAndIsDeletedFalse(paymentKey);
+        if (payment.isPresent()) {
+            throw new CustomException(ErrorCode.PAYMENT_ALREADY_EXISTS);
+        }
     }
 }
