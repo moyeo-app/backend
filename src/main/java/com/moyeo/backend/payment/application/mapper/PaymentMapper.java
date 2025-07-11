@@ -15,6 +15,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 )
 public interface PaymentMapper {
 
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", expression = "java(user)")
     @Mapping(target = "type", expression = "java(type)")
     @Mapping(target = "status", expression = "java(status)")

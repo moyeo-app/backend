@@ -1,5 +1,6 @@
 package com.moyeo.backend.payment.domain;
 
+import com.moyeo.backend.challenge.basic.domain.Challenge;
 import com.moyeo.backend.common.domain.BaseEntity;
 import com.moyeo.backend.user.domain.User;
 import jakarta.persistence.*;
@@ -15,7 +16,7 @@ public class PaymentHistory extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String Id;
+    private String id;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
