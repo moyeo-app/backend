@@ -32,18 +32,20 @@ public class ChallengeServiceImpl implements ChallengeService {
 
         // user 정보 가져오기
         User currentUser = userContextService.getCurrentUser();
+        PaymentHistory payment = validPayment(requestDto.getPaymentId());
 
-        // 챌린지 정보 저장
         Challenge challenge = challengeMapper.toChallenge(requestDto, currentUser);
         challengeInfoRepository.save(challenge);
-
-        // 결제 내역 challengeId 업데이트
-        PaymentHistory payment = paymentRepository.findByIdAndIsDeletedFalse(requestDto.getPaymentId())
-                .orElseThrow(() -> new CustomException(ErrorCode.PAYMENT_NOT_FOUND));
         payment.updateChallenge(challenge);
 
         return ChallengeResponseDto.builder()
                 .challengeId(challenge.getId())
                 .build();
+    }
+
+    // 결제 정보 확인
+    private PaymentHistory validPayment(String paymentId) {
+         return paymentRepository.findByIdAndIsDeletedFalse(paymentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PAYMENT_NOT_FOUND));
     }
 }
