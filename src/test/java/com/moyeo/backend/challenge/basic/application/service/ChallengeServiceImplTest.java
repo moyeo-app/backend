@@ -1,12 +1,10 @@
 package com.moyeo.backend.challenge.basic.application.service;
 
 import com.moyeo.backend.auth.application.service.UserContextService;
-import com.moyeo.backend.challenge.basic.application.dto.ChallengeCreateRequestDto;
-import com.moyeo.backend.challenge.basic.application.dto.ChallengeResponseDto;
+import com.moyeo.backend.challenge.basic.application.dto.*;
 import com.moyeo.backend.challenge.basic.application.mapper.ChallengeMapper;
 import com.moyeo.backend.challenge.basic.application.mapper.ChallengeMapperImpl;
 import com.moyeo.backend.challenge.basic.domain.Challenge;
-import com.moyeo.backend.challenge.basic.domain.ChallengeOption;
 import com.moyeo.backend.challenge.basic.domain.StartEndOption;
 import com.moyeo.backend.challenge.basic.domain.TimeOption;
 import com.moyeo.backend.challenge.basic.domain.enums.ChallengeType;
@@ -74,7 +72,7 @@ class ChallengeServiceImplTest {
                 .build();
     }
 
-    private ChallengeCreateRequestDto settingCreateReqDto(ChallengeType type, ChallengeOption option) {
+    private ChallengeCreateRequestDto settingCreateReqDto(ChallengeType type, ChallengeOptionDto option) {
         return ChallengeCreateRequestDto.builder()
                 .title("title")
                 .startDate(LocalDate.now())
@@ -93,20 +91,20 @@ class ChallengeServiceImplTest {
         return Stream.of(
                 Arguments.of(
                         ChallengeType.TIME,
-                        TimeOption.builder()
+                        TimeOptionDto.builder()
                                 .time(1440)
                                 .build()
                 ),
                 Arguments.of(
                         ChallengeType.ATTENDANCE,
-                        StartEndOption.builder()
+                        StartEndOptionDto.builder()
                                 .start("11:00")
                                 .end("13:00")
                                 .build()
                 ),
                 Arguments.of(
                         ChallengeType.CONTENT,
-                        StartEndOption.builder()
+                        StartEndOptionDto.builder()
                                 .start("11:00")
                                 .end("13:00")
                                 .build()
@@ -116,7 +114,7 @@ class ChallengeServiceImplTest {
 
     @ParameterizedTest(name = "챌린지 생성 성공 테스트 {0}, {1}")
     @MethodSource("challengeTypeAndOption")
-    void challenge_생성_성공_테스트(ChallengeType type, ChallengeOption option) {
+    void challenge_생성_성공_테스트(ChallengeType type, ChallengeOptionDto option) {
         // given
         String paymentId = "PAYMENT-UUID-1";
         ChallengeCreateRequestDto requestDto = settingCreateReqDto(type, option);
@@ -135,7 +133,7 @@ class ChallengeServiceImplTest {
 
     @ParameterizedTest(name = "챌린지 생성 실패 테스트 - 결제 정보 없을 때 {0}, {1}")
     @MethodSource("challengeTypeAndOption")
-    void challenge_생성_실패_테스트_결제_정보_없을_때(ChallengeType type, ChallengeOption option) {
+    void challenge_생성_실패_테스트_결제_정보_없을_때(ChallengeType type, ChallengeOptionDto option) {
         // given
         String paymentId = "PAYMENT-UUID-1";
         ChallengeCreateRequestDto requestDto = settingCreateReqDto(type, option);

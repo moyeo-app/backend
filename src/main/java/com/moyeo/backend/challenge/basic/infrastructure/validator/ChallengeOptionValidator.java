@@ -1,6 +1,8 @@
 package com.moyeo.backend.challenge.basic.infrastructure.validator;
 
 import com.moyeo.backend.challenge.basic.application.dto.ChallengeCreateRequestDto;
+import com.moyeo.backend.challenge.basic.application.dto.StartEndOptionDto;
+import com.moyeo.backend.challenge.basic.application.dto.TimeOptionDto;
 import com.moyeo.backend.challenge.basic.domain.StartEndOption;
 import com.moyeo.backend.challenge.basic.domain.TimeOption;
 import com.moyeo.backend.common.enums.ErrorCode;
@@ -15,8 +17,8 @@ public class ChallengeOptionValidator implements ConstraintValidator<ValidChalle
     @Override
     public boolean isValid(ChallengeCreateRequestDto challengeCreateRequestDto, ConstraintValidatorContext constraintValidatorContext) {
         boolean valid = switch (challengeCreateRequestDto.getType()) {
-            case TIME -> challengeCreateRequestDto.getOption() instanceof TimeOption;
-            case ATTENDANCE, CONTENT -> challengeCreateRequestDto.getOption() instanceof StartEndOption;
+            case TIME -> challengeCreateRequestDto.getOption() instanceof TimeOptionDto;
+            case ATTENDANCE, CONTENT -> challengeCreateRequestDto.getOption() instanceof StartEndOptionDto;
             default -> false;
         };
 

@@ -35,6 +35,7 @@ public class ChallengeServiceImpl implements ChallengeService {
         PaymentHistory payment = validPayment(requestDto.getPaymentId());
 
         Challenge challenge = challengeMapper.toChallenge(requestDto, currentUser);
+        log.info("option : {}", challenge.getOption());
         challengeInfoRepository.save(challenge);
         payment.updateChallenge(challenge);
 

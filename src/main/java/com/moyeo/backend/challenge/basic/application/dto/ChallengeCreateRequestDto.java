@@ -2,7 +2,6 @@ package com.moyeo.backend.challenge.basic.application.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.moyeo.backend.challenge.basic.domain.ChallengeOption;
 import com.moyeo.backend.challenge.basic.domain.StartEndOption;
 import com.moyeo.backend.challenge.basic.domain.TimeOption;
 import com.moyeo.backend.challenge.basic.domain.enums.ChallengeType;
@@ -70,7 +69,7 @@ public class ChallengeCreateRequestDto {
     @NotNull
     @Valid
     @JsonDeserialize(using = OptionDeserializer.class)
-    private ChallengeOption option;
+    private ChallengeOptionDto option;
 
     @Schema(description = "규칙 (주 n 일)", example = "7")
     @NotNull
