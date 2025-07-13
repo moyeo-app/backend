@@ -7,24 +7,26 @@ import com.moyeo.backend.common.enums.ErrorCode;
 import com.moyeo.backend.common.exception.CustomException;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j(topic = "ChallengeOptionValidator")
 public class ChallengeOptionValidator implements ConstraintValidator<ValidChallengeOption, ChallengeCreateRequestDto> {
 
     @Override
     public boolean isValid(ChallengeCreateRequestDto challengeCreateRequestDto, ConstraintValidatorContext constraintValidatorContext) {
-        switch (challengeCreateRequestDto.getType()) {
-            case TIME -> {
-                if (!(challengeCreateRequestDto.getOption() instanceof TimeOption)) {
-                    throw new CustomException(ErrorCode.INVALID_OPTION_FORMAT);
-                }
-            }
-            case ATTENDANCE, CONTENT -> {
-                if (!(challengeCreateRequestDto.getOption() instanceof StartEndOption)) {
-                    throw new CustomException(ErrorCode.INVALID_OPTION_FORMAT);
-                }
-            }
-            default -> throw new CustomException(ErrorCode.INVALID_OPTION_FORMAT);
+        boolean valid = switch (challengeCreateRequestDto.getType()) {
+            case TIME -> challengeCreateRequestDto.getOption() instanceof TimeOption;
+            case ATTENDANCE, CONTENT -> challengeCreateRequestDto.getOption() instanceof StartEndOption;
+            default -> false;
+        };
+
+        if (!valid) {
+            constraintValidatorContext.disableDefaultConstraintViolation();
+            constraintValidatorContext.buildConstraintViolationWithTemplate("챌린지 옵션 값이 유효하지 않습니다.")
+                    .addPropertyNode("option")
+                    .addConstraintViolation();
         }
-        return true;
+
+        return valid;
     }
 }
