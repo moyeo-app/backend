@@ -1,4 +1,4 @@
-package com.moyeo.backend.auth.application;
+package com.moyeo.backend.auth.application.service;
 
 import com.moyeo.backend.auth.domain.OAuthUserInfo;
 import com.moyeo.backend.auth.domain.Oauth;
