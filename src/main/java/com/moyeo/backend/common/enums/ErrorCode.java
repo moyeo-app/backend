@@ -33,10 +33,11 @@ public enum ErrorCode implements ResponseCode {
 
     // Payment
     PAYMENT_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 생성된 결제입니다."),
-    PAYMENT_NOT_FOUND(HttpStatus.CONFLICT, "결제 정보를 찾을 수 없습니다."),
+    PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "결제 정보를 찾을 수 없습니다."),
 
     // Challenge
-    INVALID_OPTION_FORMAT(HttpStatus.BAD_REQUEST, "챌린지 옵션 값이 유효하지 않습니다.");
+    INVALID_OPTION_FORMAT(HttpStatus.BAD_REQUEST, "챌린지 옵션 값이 유효하지 않습니다."),
+    CHALLENGE_NOT_FOUND(HttpStatus.NOT_FOUND, "챌린지 정보를 찾을 수 없습니다.");
 
     private final HttpStatus status;
     private final String message;

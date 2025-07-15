@@ -1,9 +1,6 @@
 package com.moyeo.backend.challenge.basic.application.mapper;
 
-import com.moyeo.backend.challenge.basic.application.dto.ChallengeCreateRequestDto;
-import com.moyeo.backend.challenge.basic.application.dto.ChallengeOptionDto;
-import com.moyeo.backend.challenge.basic.application.dto.StartEndOptionDto;
-import com.moyeo.backend.challenge.basic.application.dto.TimeOptionDto;
+import com.moyeo.backend.challenge.basic.application.dto.*;
 import com.moyeo.backend.challenge.basic.domain.Challenge;
 import com.moyeo.backend.challenge.basic.domain.ChallengeOption;
 import com.moyeo.backend.challenge.basic.domain.StartEndOption;
@@ -28,6 +25,10 @@ public interface ChallengeMapper {
     @Mapping(target = "option", expression = "java(toOption(requestDto.getOption()))")
     Challenge toChallenge(ChallengeCreateRequestDto requestDto, User user);
 
+    @Mapping(source = "id", target = "challengeId")
+    @Mapping(target = "option", expression = "java(toOptionDto(challenge.getOption()))")
+    ChallengeReadResponseDto toChallengeDto(Challenge challenge);
+
     default ChallengeOption toOption(ChallengeOptionDto dto) {
         if (dto instanceof TimeOptionDto time) {
             return TimeOption.builder()
@@ -35,6 +36,21 @@ public interface ChallengeMapper {
                     .build();
         } else if (dto instanceof StartEndOptionDto startEnd) {
             return StartEndOption.builder()
+                    .start(startEnd.getStart())
+                    .end(startEnd.getEnd())
+                    .build();
+        } else {
+            throw new CustomException(ErrorCode.INVALID_OPTION_FORMAT);
+        }
+    }
+
+    default ChallengeOptionDto toOptionDto(ChallengeOption option) {
+        if (option instanceof TimeOption time) {
+            return TimeOptionDto.builder()
+                    .time(time.getTime())
+                    .build();
+        } else if (option instanceof StartEndOption startEnd) {
+            return StartEndOptionDto.builder()
                     .start(startEnd.getStart())
                     .end(startEnd.getEnd())
                     .build();
