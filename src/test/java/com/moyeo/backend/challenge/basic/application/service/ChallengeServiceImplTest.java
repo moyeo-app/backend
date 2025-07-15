@@ -5,6 +5,7 @@ import com.moyeo.backend.challenge.basic.application.dto.*;
 import com.moyeo.backend.challenge.basic.application.mapper.ChallengeMapper;
 import com.moyeo.backend.challenge.basic.application.mapper.ChallengeMapperImpl;
 import com.moyeo.backend.challenge.basic.domain.Challenge;
+import com.moyeo.backend.challenge.basic.domain.ChallengeOption;
 import com.moyeo.backend.challenge.basic.domain.StartEndOption;
 import com.moyeo.backend.challenge.basic.domain.TimeOption;
 import com.moyeo.backend.challenge.basic.domain.enums.ChallengeType;
@@ -15,6 +16,8 @@ import com.moyeo.backend.payment.domain.PaymentHistory;
 import com.moyeo.backend.payment.domain.PaymentRepository;
 import com.moyeo.backend.user.domain.User;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -72,6 +75,14 @@ class ChallengeServiceImplTest {
                 .build();
     }
 
+    private Challenge createChallenge(String id, ChallengeType type, ChallengeOption option) {
+        return Challenge.builder()
+                .id(id)
+                .type(type)
+                .option(option)
+                .build();
+    }
+
     private ChallengeCreateRequestDto settingCreateReqDto(ChallengeType type, ChallengeOptionDto option) {
         return ChallengeCreateRequestDto.builder()
                 .title("title")
@@ -87,7 +98,7 @@ class ChallengeServiceImplTest {
                 .build();
     }
 
-    static Stream<Arguments> challengeTypeAndOption() {
+    static Stream<Arguments> challengeTypeAndOptionDto() {
         return Stream.of(
                 Arguments.of(
                         ChallengeType.TIME,
@@ -112,8 +123,33 @@ class ChallengeServiceImplTest {
         );
     }
 
+    static Stream<Arguments> challengeTypeAndOption() {
+        return Stream.of(
+                Arguments.of(
+                        ChallengeType.TIME,
+                        TimeOption.builder()
+                                .time(1440)
+                                .build()
+                ),
+                Arguments.of(
+                        ChallengeType.ATTENDANCE,
+                        StartEndOption.builder()
+                                .start("11:00")
+                                .end("13:00")
+                                .build()
+                ),
+                Arguments.of(
+                        ChallengeType.CONTENT,
+                        StartEndOption.builder()
+                                .start("11:00")
+                                .end("13:00")
+                                .build()
+                )
+        );
+    }
+
     @ParameterizedTest(name = "챌린지 생성 성공 테스트 {0}, {1}")
-    @MethodSource("challengeTypeAndOption")
+    @MethodSource("challengeTypeAndOptionDto")
     void challenge_생성_성공_테스트(ChallengeType type, ChallengeOptionDto option) {
         // given
         String paymentId = "PAYMENT-UUID-1";
@@ -132,7 +168,7 @@ class ChallengeServiceImplTest {
     }
 
     @ParameterizedTest(name = "챌린지 생성 실패 테스트 - 결제 정보 없을 때 {0}, {1}")
-    @MethodSource("challengeTypeAndOption")
+    @MethodSource("challengeTypeAndOptionDto")
     void challenge_생성_실패_테스트_결제_정보_없을_때(ChallengeType type, ChallengeOptionDto option) {
         // given
         String paymentId = "PAYMENT-UUID-1";
@@ -146,5 +182,37 @@ class ChallengeServiceImplTest {
             challengeService.create(requestDto);
         });
         assertEquals(ErrorCode.PAYMENT_NOT_FOUND, ex.getResponseCode());
+    }
+
+    @ParameterizedTest(name = "챌린지 조회 성공 테스트 {0}, {1}")
+    @MethodSource("challengeTypeAndOption")
+    void challenge_단건_조회_성공_테스트(ChallengeType type, ChallengeOption option) {
+        // given
+        String challengeId = "CHALLENGE-UUID-1";
+        Challenge challenge = createChallenge(challengeId, type, option);
+
+        when(challengeInfoRepository.findByIdAndIsDeletedFalse(challengeId)).thenReturn(Optional.of(challenge));
+
+        // when
+        ChallengeReadResponseDto responseDto = challengeService.getById(challengeId);
+
+        // then
+        assertEquals(challengeId, responseDto.getChallengeId());
+        assertEquals(type, responseDto.getType());
+    }
+
+    @Test
+    @DisplayName("챌린지 단건 조회 실패 테스트 - 챌린지 정보 없음")
+    void challenge_단건_조회_실패_테스트() {
+        // given
+        String challengeId = "CHALLENGE-UUID-1";
+
+        when(challengeInfoRepository.findByIdAndIsDeletedFalse(challengeId)).thenReturn(Optional.empty());
+
+        // when & then
+        CustomException ex = assertThrows(CustomException.class, () -> {
+            challengeService.getById(challengeId);
+        });
+        assertEquals(ErrorCode.CHALLENGE_NOT_FOUND, ex.getResponseCode());
     }
 }
