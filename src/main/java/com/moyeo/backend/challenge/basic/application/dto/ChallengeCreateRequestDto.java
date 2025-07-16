@@ -42,7 +42,7 @@ public class ChallengeCreateRequestDto {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
 
-    @Schema(description = "챌린지 인증 방식", example = "TIME")
+    @Schema(description = "챌린지 인증 유형", example = "TIME")
     @NotNull
     private ChallengeType type;
 
@@ -64,7 +64,7 @@ public class ChallengeCreateRequestDto {
 
     @Schema(
             description = "챌린지 유형에 따른 옵션",
-            oneOf = {TimeOption.class, StartEndOption.class}
+            oneOf = {TimeOptionDto.class, StartEndOptionDto.class}
     )
     @NotNull
     @Valid

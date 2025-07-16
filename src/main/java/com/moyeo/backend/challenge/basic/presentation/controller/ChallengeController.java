@@ -1,5 +1,6 @@
 package com.moyeo.backend.challenge.basic.presentation.controller;
 
+import com.moyeo.backend.challenge.basic.application.dto.ChallengeReadResponseDto;
 import com.moyeo.backend.challenge.basic.application.service.ChallengeService;
 import com.moyeo.backend.challenge.basic.application.dto.ChallengeCreateRequestDto;
 import com.moyeo.backend.challenge.basic.application.dto.ChallengeResponseDto;
@@ -22,5 +23,11 @@ public class ChallengeController implements ChallengeControllerDocs{
     public ResponseEntity<ApiResponse<ChallengeResponseDto>> create(@Valid @RequestBody ChallengeCreateRequestDto requestDto) {
         log.info("PaymentId : {}", requestDto.getPaymentId());
         return ResponseEntity.ok().body(ApiResponse.success(challengeService.create(requestDto)));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<ChallengeReadResponseDto>> getById(@PathVariable String id) {
+        log.info("ChallengeId : {}", id);
+        return ResponseEntity.ok().body(ApiResponse.success(challengeService.getById(id)));
     }
 }

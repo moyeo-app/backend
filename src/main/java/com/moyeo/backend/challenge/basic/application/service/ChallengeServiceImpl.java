@@ -2,6 +2,7 @@ package com.moyeo.backend.challenge.basic.application.service;
 
 import com.moyeo.backend.auth.application.service.UserContextService;
 import com.moyeo.backend.challenge.basic.application.dto.ChallengeCreateRequestDto;
+import com.moyeo.backend.challenge.basic.application.dto.ChallengeReadResponseDto;
 import com.moyeo.backend.challenge.basic.application.dto.ChallengeResponseDto;
 import com.moyeo.backend.challenge.basic.application.mapper.ChallengeMapper;
 import com.moyeo.backend.challenge.basic.domain.Challenge;
@@ -42,6 +43,14 @@ public class ChallengeServiceImpl implements ChallengeService {
         return ChallengeResponseDto.builder()
                 .challengeId(challenge.getId())
                 .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ChallengeReadResponseDto getById(String id) {
+        Challenge challenge = challengeInfoRepository.findByIdAndIsDeletedFalse(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.CHALLENGE_NOT_FOUND));
+        return challengeMapper.toChallengeDto(challenge);
     }
 
     // 결제 정보 확인
