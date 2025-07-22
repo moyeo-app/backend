@@ -8,10 +8,15 @@ import com.moyeo.backend.challenge.basic.domain.Challenge;
 import com.moyeo.backend.challenge.basic.domain.ChallengeOption;
 import com.moyeo.backend.challenge.basic.domain.StartEndOption;
 import com.moyeo.backend.challenge.basic.domain.TimeOption;
+import com.moyeo.backend.challenge.basic.domain.enums.ChallengeStatus;
 import com.moyeo.backend.challenge.basic.domain.enums.ChallengeType;
-import com.moyeo.backend.challenge.basic.domain.repository.ChallengeInfoRepository;
+import com.moyeo.backend.challenge.basic.infrastructure.repository.JpaChallengeInfoRepository;
 import com.moyeo.backend.common.enums.ErrorCode;
 import com.moyeo.backend.common.exception.CustomException;
+import com.moyeo.backend.common.mapper.PageMapper;
+import com.moyeo.backend.common.mapper.PageMapperImpl;
+import com.moyeo.backend.common.request.PageRequestDto;
+import com.moyeo.backend.common.response.PageResponse;
 import com.moyeo.backend.payment.domain.PaymentHistory;
 import com.moyeo.backend.payment.domain.PaymentRepository;
 import com.moyeo.backend.user.domain.User;
@@ -26,14 +31,20 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -49,7 +60,7 @@ class ChallengeServiceImplTest {
     private UserContextService userContextService;
 
     @Mock
-    private ChallengeInfoRepository challengeInfoRepository;
+    private JpaChallengeInfoRepository challengeInfoRepository;
 
     @Mock
     private PaymentRepository paymentRepository;
@@ -59,6 +70,9 @@ class ChallengeServiceImplTest {
 
     @Spy
     private ChallengeMapper challengeMapper = new ChallengeMapperImpl();
+
+    @Spy
+    private PageMapper pageMapper = new PageMapperImpl();
 
     private User user;
 
@@ -95,6 +109,23 @@ class ChallengeServiceImplTest {
                 .option(option)
                 .rule(3)
                 .paymentId("PAYMENT-UUID-1")
+                .build();
+    }
+
+    private ChallengeReadRequestDto settingReadReqDto(String title, ChallengeType type, ChallengeStatus status) {
+        return ChallengeReadRequestDto.builder()
+                .title(title)
+                .type(type)
+                .status(status)
+                .build();
+    }
+
+    private ChallengeReadResponseDto settingReadResDto(String title, ChallengeType type, ChallengeStatus status) {
+        return ChallengeReadResponseDto.builder()
+                .challengeId("CHALLENGE-UUID-1")
+                .title(title)
+                .type(type)
+                .status(status)
                 .build();
     }
 
@@ -214,5 +245,41 @@ class ChallengeServiceImplTest {
             challengeService.getById(challengeId);
         });
         assertEquals(ErrorCode.CHALLENGE_NOT_FOUND, ex.getResponseCode());
+    }
+
+    @Test
+    @DisplayName("챌린지 목록 조회 테스트")
+    void challenge_목록_조회_테스트() {
+        // given
+        ChallengeReadRequestDto requestDto = settingReadReqDto(null, null, null);
+        Pageable pageable = PageRequestDto.builder()
+                .page(1)
+                .size(10)
+                .sort("createdAt,desc")
+                .build().toPageable();
+        ChallengeReadResponseDto responseDto = settingReadResDto("title", ChallengeType.TIME, ChallengeStatus.RECRUITING);
+        Page<ChallengeReadResponseDto> results = new PageImpl<>(List.of());
+
+        PageResponse<ChallengeReadResponseDto> expected = PageResponse.<ChallengeReadResponseDto>builder()
+                .content(List.of(responseDto))
+                .pageNumber(pageable.getPageNumber())
+                .pageSize(pageable.getPageSize())
+                .totalPages(1)
+                .totalElements(1)
+                .last(true)
+                .build();
+
+        when(challengeInfoRepository.searchChallenges(requestDto, pageable)).thenReturn(results);
+        when(pageMapper.toPageResponse(results)).thenReturn(expected);
+
+        // when
+        PageResponse<ChallengeReadResponseDto> response = challengeService.gets(requestDto, pageable);
+
+        // then
+        assertThat(response.getContent()).hasSize(1);
+        assertThat(response.getContent().get(0).getTitle()).isEqualTo("title");
+        assertThat(response.getPageNumber()).isEqualTo(1);
+        assertThat(response.getPageSize()).isEqualTo(10);
+        assertThat(response.isLast()).isTrue();
     }
 }
