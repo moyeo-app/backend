@@ -20,7 +20,7 @@ public enum ErrorCode implements ResponseCode {
     NOT_FOUND(HttpStatus.NOT_FOUND, "요청하신 URL 을 찾을 수 없습니다."),
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "허용되지 않은 HTTP 메서드입니다."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다."),
-
+    INVALID_SORT_EXCEPTION(HttpStatus.BAD_REQUEST, "유효하지 않은 정렬 조건입니다."),
 
     // OAuth
     OAUTH_API_CALL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "OAuth API 호출에 실패했습니다."),
