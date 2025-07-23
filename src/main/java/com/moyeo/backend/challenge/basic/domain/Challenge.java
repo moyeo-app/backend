@@ -1,6 +1,5 @@
 package com.moyeo.backend.challenge.basic.domain;
 
-import com.moyeo.backend.challenge.basic.application.dto.ChallengeOptionDto;
 import com.moyeo.backend.challenge.basic.domain.enums.ChallengeStatus;
 import com.moyeo.backend.challenge.basic.domain.enums.ChallengeType;
 import com.moyeo.backend.common.domain.BaseEntity;
