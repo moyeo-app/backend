@@ -38,8 +38,11 @@ public class ChallengeController implements ChallengeControllerDocs{
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<ChallengeReadResponseDto>>> gets(
             @ParameterObject @ModelAttribute ChallengeReadRequestDto requestDto,
-            @ParameterObject PageRequestDto page) {
+            @ParameterObject @ModelAttribute PageRequestDto page) {
         log.info("Challenge Title : {}", requestDto.getTitle());
+        log.info("page = {}, size = {}, sort = {}, direction = {}",
+                page.getPage(), page.getSize(), page.getSort(), page.getDirection());
+
         return ResponseEntity.ok().body(ApiResponse.success(challengeService.gets(requestDto, page.toPageable())));
     }
 }

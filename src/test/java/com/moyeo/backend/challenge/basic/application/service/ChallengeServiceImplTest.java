@@ -33,7 +33,6 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -255,7 +254,8 @@ class ChallengeServiceImplTest {
         Pageable pageable = PageRequestDto.builder()
                 .page(1)
                 .size(10)
-                .sort("createdAt,desc")
+                .sort("createdAt")
+                .direction("desc")
                 .build().toPageable();
         ChallengeReadResponseDto responseDto = settingReadResDto("title", ChallengeType.TIME, ChallengeStatus.RECRUITING);
         Page<ChallengeReadResponseDto> results = new PageImpl<>(List.of());
