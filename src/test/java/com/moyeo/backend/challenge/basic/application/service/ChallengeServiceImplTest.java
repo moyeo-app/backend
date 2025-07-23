@@ -262,7 +262,7 @@ class ChallengeServiceImplTest {
 
         PageResponse<ChallengeReadResponseDto> expected = PageResponse.<ChallengeReadResponseDto>builder()
                 .content(List.of(responseDto))
-                .pageNumber(pageable.getPageNumber())
+                .pageNumber(pageable.getPageNumber() + 1)
                 .pageSize(pageable.getPageSize())
                 .totalPages(1)
                 .totalElements(1)
