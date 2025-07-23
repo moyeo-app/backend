@@ -9,11 +9,13 @@ import com.moyeo.backend.challenge.basic.domain.enums.ChallengeType;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.ComparableExpressionBase;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -38,26 +40,29 @@ public class CustomChallengeInfoRepositoryImpl implements CustomChallengeInfoRep
     @Override
     public Page<ChallengeReadResponseDto> searchChallenges(ChallengeReadRequestDto requestDto, Pageable pageable) {
 
-        List<Challenge> challenges = jpaQueryFactory
+        BooleanBuilder booleanBuilder = booleanBuilder(requestDto);
+
+        JPAQuery<Challenge> challenges = jpaQueryFactory
                 .selectFrom(challenge)
-                .where(booleanBuilder(requestDto))
+                .where(booleanBuilder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(getOrderSpecifiers(pageable, SORT_PARAMS))
-                .fetch();
+                .orderBy(getOrderSpecifiers(pageable, SORT_PARAMS));
 
-        List<ChallengeReadResponseDto> results = challenges.stream()
+        JPAQuery<Long> total = jpaQueryFactory
+                .select(challenge.count())
+                .from(challenge)
+                .where(booleanBuilder);
+
+        List<ChallengeReadResponseDto> results = challenges.fetch().stream()
                 .map(challengeMapper::toChallengeDto)
                 .toList();
 
-        Long total = Objects.requireNonNullElse(
-                jpaQueryFactory
-                        .select(challenge.count())
-                        .from(challenge)
-                        .fetchOne(),
-                0L
+        return PageableExecutionUtils.getPage(
+                results,
+                pageable,
+                total::fetchOne
         );
-        return new PageImpl<>(results, pageable, total);
     }
 
     private BooleanBuilder booleanBuilder(ChallengeReadRequestDto requestDto) {
