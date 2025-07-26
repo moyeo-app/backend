@@ -61,4 +61,12 @@ public class Challenge extends BaseEntity {
 
     @Column(nullable = false)
     private int rule;
+
+    public void updateParticipantsCount() {
+        this.participantsCount += 1;
+
+        if (participantsCount == maxParticipants) {
+            this.status = ChallengeStatus.CLOSED;
+        }
+    }
 }
