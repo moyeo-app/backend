@@ -14,6 +14,13 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:latest
+    container_name: moyeo-redis
+    ports:
+      - "${REDIS_PORT}:6379"
+
+
   prometheus:
     image: prom/prometheus:latest
     container_name: moyeo-prometheus
@@ -65,6 +72,8 @@ services:
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}
       - LOKI_PUSH_URL=${LOKI_PUSH_URL}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
 volumes:
   grafana-data:
   prometheus-data:
