@@ -2,7 +2,6 @@ package com.moyeo.backend.challenge.participation.application.service;
 
 import com.moyeo.backend.auth.application.service.UserContextService;
 import com.moyeo.backend.challenge.basic.domain.Challenge;
-import com.moyeo.backend.challenge.basic.domain.enums.ChallengeStatus;
 import com.moyeo.backend.challenge.basic.infrastructure.repository.JpaChallengeInfoRepository;
 import com.moyeo.backend.challenge.participation.application.dto.ChallengeParticipationRequestDto;
 import com.moyeo.backend.challenge.participation.application.dto.ChallengeParticipationResponseDto;
@@ -16,9 +15,11 @@ import com.moyeo.backend.payment.infrastructure.JpaPaymentRepository;
 import com.moyeo.backend.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.Optional;
 
 @Slf4j(topic = "ChallengeParticipationService")
@@ -31,6 +32,17 @@ public class ChallengeParticipationServiceImpl implements ChallengeParticipation
     private final JpaChallengeParticipationRepository participationRepository;
     private final JpaChallengeInfoRepository challengeInfoRepository;
     private final JpaPaymentRepository paymentRepository;
+    private final StringRedisTemplate redisTemplate;
+
+    @Override
+    @Transactional
+    public Boolean check(String challengeId) {
+        User currentUser = userContextService.getCurrentUser();
+        String userId = currentUser.getId();
+        Challenge challenge = validChallengeAndParticipation(challengeId, userId);
+
+        return isRemaining(challengeId, challenge, userId);
+    }
 
     @Override
     @Transactional
@@ -60,11 +72,26 @@ public class ChallengeParticipationServiceImpl implements ChallengeParticipation
             throw new CustomException(ErrorCode.PARTICIPATION_ALREADY_EXISTS);
         }
 
-        if (challenge.getStatus() == ChallengeStatus.CLOSED) {
+        // TODO: 동일 시간대에 참여하고 있는 챌린지 있는지도 확인해야함
+
+        return challenge;
+    }
+
+    private Boolean isRemaining(String challengeId, Challenge challenge, String userId) {
+        String challengeKey = "challengeId:" + challengeId + ":slots";
+        String pendingKey = "challengeId:" + challengeId + ":pending" + userId;
+        if (!redisTemplate.hasKey(challengeKey)) {
+            redisTemplate.opsForValue().set(
+                    "challengeId:" + challengeId + ":slots", String.valueOf(challenge.getMaxParticipants() - challenge.getParticipantsCount())
+            );
+        }
+        Long remain = redisTemplate.opsForValue().decrement(challengeKey);
+        if (remain < 0) {
             throw new CustomException(ErrorCode.CHALLENGE_PARTICIPATION_CLOSED);
         }
 
-        return challenge;
+        redisTemplate.opsForValue().set(pendingKey, "true", Duration.ofMinutes(5));
+        return true;
     }
 
     private PaymentHistory validPayment(String paymentId, String userId) {

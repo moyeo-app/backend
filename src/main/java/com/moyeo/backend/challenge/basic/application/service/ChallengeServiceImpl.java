@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +38,7 @@ public class ChallengeServiceImpl implements ChallengeService {
     private final UserContextService userContextService;
     private final PageMapper pageMapper;
     private final ChallengeParticipationMapper participationMapper;
+    private final StringRedisTemplate redisTemplate;
 
     @Override
     @Transactional
@@ -53,8 +55,10 @@ public class ChallengeServiceImpl implements ChallengeService {
         challengeInfoRepository.save(challenge);
         payment.updateChallenge(participation);
 
+        String challengeId = challenge.getId();
+        redisTemplate.opsForValue().set("challengeId:" + challengeId + ":slots", String.valueOf(requestDto.getMaxParticipants()));
         return ChallengeResponseDto.builder()
-                .challengeId(challenge.getId())
+                .challengeId(challengeId)
                 .build();
     }
 

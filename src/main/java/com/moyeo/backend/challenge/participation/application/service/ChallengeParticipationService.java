@@ -5,5 +5,7 @@ import com.moyeo.backend.challenge.participation.application.dto.ChallengePartic
 
 public interface ChallengeParticipationService {
 
+    Boolean check(String challengeId);
+
     ChallengeParticipationResponseDto participate(String challengeId, ChallengeParticipationRequestDto requestDto);
 }

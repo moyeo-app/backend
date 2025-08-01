@@ -18,6 +18,13 @@ public class ChallengeParticipationController implements ChallengeParticipationC
 
     private final ChallengeParticipationService challengeParticipationService;
 
+    @GetMapping("/{challengeId}/check")
+    public ResponseEntity<ApiResponse<Boolean>> check(@PathVariable String challengeId) {
+        return ResponseEntity.ok().body(ApiResponse.success(
+                challengeParticipationService.check(challengeId)
+        ));
+    }
+
     @PostMapping("/{challengeId}/participates")
     public ResponseEntity<ApiResponse<ChallengeParticipationResponseDto>> participate(
             @PathVariable String challengeId,

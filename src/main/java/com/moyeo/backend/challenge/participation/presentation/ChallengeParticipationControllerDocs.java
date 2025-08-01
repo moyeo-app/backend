@@ -13,6 +13,10 @@ import org.springframework.http.ResponseEntity;
 @SecurityRequirement(name = "bearerAuth")
 public interface ChallengeParticipationControllerDocs {
 
-    @Operation(summary = "챌린지 생성 API", description = "챌린지 생성 API 입니다.")
+    @Operation(summary = "챌린지 참여 가능 여부 확인 API", description = "챌린지 참여 가능 여부 확인 API 입니다.")
+    ResponseEntity<ApiResponse<Boolean>> check(String id);
+
+
+    @Operation(summary = "챌린지 참여 API", description = "챌린지 참여 API 입니다.")
     ResponseEntity<ApiResponse<ChallengeParticipationResponseDto>> participate(String id, ChallengeParticipationRequestDto requestDto);
 }
