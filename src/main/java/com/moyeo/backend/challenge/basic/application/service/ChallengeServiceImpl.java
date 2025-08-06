@@ -6,17 +6,16 @@ import com.moyeo.backend.challenge.basic.application.dto.ChallengeReadRequestDto
 import com.moyeo.backend.challenge.basic.application.dto.ChallengeReadResponseDto;
 import com.moyeo.backend.challenge.basic.application.dto.ChallengeResponseDto;
 import com.moyeo.backend.challenge.basic.application.mapper.ChallengeMapper;
+import com.moyeo.backend.challenge.basic.application.validator.ChallengeValidator;
 import com.moyeo.backend.challenge.basic.domain.Challenge;
 import com.moyeo.backend.challenge.basic.infrastructure.repository.JpaChallengeInfoRepository;
 import com.moyeo.backend.challenge.participation.application.mapper.ChallengeParticipationMapper;
 import com.moyeo.backend.challenge.participation.domain.ChallengeParticipation;
 import com.moyeo.backend.challenge.participation.infrastructure.repository.JpaChallengeParticipationRepository;
-import com.moyeo.backend.common.enums.ErrorCode;
-import com.moyeo.backend.common.exception.CustomException;
 import com.moyeo.backend.common.mapper.PageMapper;
 import com.moyeo.backend.common.response.PageResponse;
+import com.moyeo.backend.payment.application.validator.PaymentValidator;
 import com.moyeo.backend.payment.domain.PaymentHistory;
-import com.moyeo.backend.payment.domain.PaymentRepository;
 import com.moyeo.backend.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,8 +25,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-
 @Slf4j(topic = "ChallengeService")
 @Service
 @RequiredArgsConstructor
@@ -36,20 +33,20 @@ public class ChallengeServiceImpl implements ChallengeService {
     private final ChallengeMapper challengeMapper;
     private final JpaChallengeInfoRepository challengeInfoRepository;
     private final JpaChallengeParticipationRepository participationRepository;
-    private final PaymentRepository paymentRepository;
     private final UserContextService userContextService;
     private final PageMapper pageMapper;
     private final ChallengeParticipationMapper participationMapper;
     private final StringRedisTemplate redisTemplate;
+    private final ChallengeValidator challengeValidator;
+    private final PaymentValidator paymentValidator;
 
     @Override
     @Transactional
     public ChallengeResponseDto create(ChallengeCreateRequestDto requestDto) {
 
-        // user 정보 가져오기
         User currentUser = userContextService.getCurrentUser();
-        PaymentHistory payment = validPayment(requestDto.getPaymentId());
-        validDate(requestDto.getStartDate());
+        PaymentHistory payment = paymentValidator.getValidPaymentByIdAndUserId(requestDto.getPaymentId(), currentUser.getId());
+        challengeValidator.validateDate(requestDto.getStartDate());
 
         Challenge challenge = challengeMapper.toChallenge(requestDto, currentUser);
         challengeInfoRepository.save(challenge);
@@ -69,8 +66,7 @@ public class ChallengeServiceImpl implements ChallengeService {
     @Override
     @Transactional(readOnly = true)
     public ChallengeReadResponseDto getById(String id) {
-        Challenge challenge = challengeInfoRepository.findByIdAndIsDeletedFalse(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.CHALLENGE_NOT_FOUND));
+        Challenge challenge = challengeValidator.getValidChallengeById(id);
         return challengeMapper.toChallengeDto(challenge);
     }
 
@@ -80,18 +76,5 @@ public class ChallengeServiceImpl implements ChallengeService {
 
         Page<ChallengeReadResponseDto> challenges = challengeInfoRepository.searchChallenges(requestDto, pageable);
         return pageMapper.toPageResponse(challenges);
-    }
-
-    // 결제 정보 확인
-    private PaymentHistory validPayment(String paymentId) {
-         return paymentRepository.findByIdAndIsDeletedFalse(paymentId)
-                .orElseThrow(() -> new CustomException(ErrorCode.PAYMENT_NOT_FOUND));
-    }
-
-    // 시작일 유효성 검사
-    private void validDate(LocalDate startDate) {
-        if (startDate.isBefore(LocalDate.now())) {
-            throw new CustomException(ErrorCode.INVALID_DATE);
-        }
     }
 }

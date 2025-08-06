@@ -1,15 +1,15 @@
 package com.moyeo.backend.auth.application.service;
 
-import com.moyeo.backend.auth.domain.OAuthUserInfo;
-import com.moyeo.backend.auth.domain.Oauth;
-import com.moyeo.backend.auth.domain.OauthRepository;
-import com.moyeo.backend.auth.domain.Provider;
-import com.moyeo.backend.auth.infrastructure.client.OAuthProviderService;
-import com.moyeo.backend.auth.application.dto.TokenRequestDto;
-import com.moyeo.backend.auth.infrastructure.dtos.TokenResponse;
-import com.moyeo.backend.auth.infrastructure.factory.OAuthProviderFactory;
 import com.moyeo.backend.auth.application.dto.LoginRequestDto;
 import com.moyeo.backend.auth.application.dto.LoginResponseDto;
+import com.moyeo.backend.auth.application.dto.TokenRequestDto;
+import com.moyeo.backend.auth.domain.OAuthUserInfo;
+import com.moyeo.backend.auth.domain.Oauth;
+import com.moyeo.backend.auth.domain.Provider;
+import com.moyeo.backend.auth.infrastructure.JpaOauthRepository;
+import com.moyeo.backend.auth.infrastructure.client.OAuthProviderService;
+import com.moyeo.backend.auth.infrastructure.dtos.TokenResponse;
+import com.moyeo.backend.auth.infrastructure.factory.OAuthProviderFactory;
 import com.moyeo.backend.auth.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ import java.util.Optional;
 public class AuthServiceImpl implements AuthService {
 
     private final OAuthProviderFactory providerFactory;
-    private final OauthRepository oauthRepository;
+    private final JpaOauthRepository oauthRepository;
     private final JwtUtil jwtUtil;
 
     @Override

@@ -1,17 +1,15 @@
 package com.moyeo.backend.challenge.participation.infrastructure.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.moyeo.backend.challenge.basic.application.validator.ChallengeValidator;
 import com.moyeo.backend.challenge.basic.domain.Challenge;
-import com.moyeo.backend.challenge.basic.infrastructure.repository.JpaChallengeInfoRepository;
 import com.moyeo.backend.challenge.participation.application.mapper.ChallengeParticipationMapper;
 import com.moyeo.backend.challenge.participation.domain.ChallengeParticipation;
 import com.moyeo.backend.challenge.participation.infrastructure.repository.JpaChallengeParticipationRepository;
-import com.moyeo.backend.common.enums.ErrorCode;
-import com.moyeo.backend.common.exception.CustomException;
+import com.moyeo.backend.payment.application.validator.PaymentValidator;
 import com.moyeo.backend.payment.domain.PaymentHistory;
-import com.moyeo.backend.payment.infrastructure.JpaPaymentRepository;
+import com.moyeo.backend.user.application.validator.UserValidator;
 import com.moyeo.backend.user.domain.User;
-import com.moyeo.backend.user.domain.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -27,10 +25,10 @@ public class ChallengeParticipationConsumer {
     private final ObjectMapper objectMapper;
     private final StringRedisTemplate redisTemplate;
     private final JpaChallengeParticipationRepository participationRepository;
-    private final JpaChallengeInfoRepository challengeInfoRepository;
-    private final JpaPaymentRepository paymentRepository;
-    private final UserRepository userRepository;
     private final ChallengeParticipationMapper participationMapper;
+    private final ChallengeValidator challengeValidator;
+    private final UserValidator userValidator;
+    private final PaymentValidator paymentValidator;
 
     @KafkaListener(topics = "challenge.participation.complete", groupId = "challenge-consumer")
     @Transactional
@@ -47,12 +45,9 @@ public class ChallengeParticipationConsumer {
                 return;
             }
 
-            Challenge challenge = challengeInfoRepository.findByIdAndIsDeletedFalse(challengeId)
-                    .orElseThrow(() -> new CustomException(ErrorCode.CHALLENGE_NOT_FOUND));
-            User user = userRepository.findByIdAndIsDeletedFalse(userId)
-                    .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-            PaymentHistory payment = paymentRepository.findByIdAndIsDeletedFalse(paymentId)
-                    .orElseThrow(() -> new CustomException(ErrorCode.PAYMENT_NOT_FOUND));
+            Challenge challenge = challengeValidator.getValidChallengeById(challengeId);
+            User user = userValidator.getValidUserById(userId);
+            PaymentHistory payment = paymentValidator.getValidPaymentByIdAndUserId(paymentId, userId);
 
             ChallengeParticipation participation = participationMapper.toParticipant(challenge, user);
             payment.updateChallenge(participation);
