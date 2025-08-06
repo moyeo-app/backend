@@ -41,7 +41,8 @@ public enum ErrorCode implements ResponseCode {
     INVALID_DATE(HttpStatus.BAD_REQUEST, "해당 날짜는 선택 불가합니다."),
     // Challenge - Participation
     PARTICIPATION_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 처리된 챌린지 참여 요청입니다."),
-    CHALLENGE_PARTICIPATION_CLOSED(HttpStatus.BAD_REQUEST, "챌린지 참여 인원 모집이 마감되었습니다.");
+    CHALLENGE_PARTICIPATION_CLOSED(HttpStatus.BAD_REQUEST, "챌린지 참여 인원 모집이 마감되었습니다."),
+    KAFKA_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "카프카 호출에 실패했습니다.");
 
     private final HttpStatus status;
     private final String message;

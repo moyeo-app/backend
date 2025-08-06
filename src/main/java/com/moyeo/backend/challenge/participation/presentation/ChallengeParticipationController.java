@@ -1,7 +1,6 @@
 package com.moyeo.backend.challenge.participation.presentation;
 
 import com.moyeo.backend.challenge.participation.application.dto.ChallengeParticipationRequestDto;
-import com.moyeo.backend.challenge.participation.application.dto.ChallengeParticipationResponseDto;
 import com.moyeo.backend.challenge.participation.application.service.ChallengeParticipationService;
 import com.moyeo.backend.common.response.ApiResponse;
 import jakarta.validation.Valid;
@@ -26,11 +25,10 @@ public class ChallengeParticipationController implements ChallengeParticipationC
     }
 
     @PostMapping("/{challengeId}/participates")
-    public ResponseEntity<ApiResponse<ChallengeParticipationResponseDto>> participate(
+    public ResponseEntity<ApiResponse<Void>> participate(
             @PathVariable String challengeId,
             @Valid @RequestBody ChallengeParticipationRequestDto requestDto) {
-        return ResponseEntity.ok().body(ApiResponse.success(
-                challengeParticipationService.participate(challengeId, requestDto))
-        );
+        challengeParticipationService.participate(challengeId, requestDto);
+        return ResponseEntity.ok().body(ApiResponse.success());
     }
 }

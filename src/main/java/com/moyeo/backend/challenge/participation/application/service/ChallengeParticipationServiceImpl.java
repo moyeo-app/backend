@@ -1,12 +1,13 @@
 package com.moyeo.backend.challenge.participation.application.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.moyeo.backend.auth.application.service.UserContextService;
 import com.moyeo.backend.challenge.basic.domain.Challenge;
 import com.moyeo.backend.challenge.basic.infrastructure.repository.JpaChallengeInfoRepository;
 import com.moyeo.backend.challenge.participation.application.dto.ChallengeParticipationRequestDto;
-import com.moyeo.backend.challenge.participation.application.dto.ChallengeParticipationResponseDto;
-import com.moyeo.backend.challenge.participation.application.mapper.ChallengeParticipationMapper;
 import com.moyeo.backend.challenge.participation.domain.ChallengeParticipation;
+import com.moyeo.backend.challenge.participation.infrastructure.kafka.ChallengeParticipationEvent;
+import com.moyeo.backend.challenge.participation.infrastructure.kafka.ChallengeParticipationProducer;
 import com.moyeo.backend.challenge.participation.infrastructure.repository.JpaChallengeParticipationRepository;
 import com.moyeo.backend.common.enums.ErrorCode;
 import com.moyeo.backend.common.exception.CustomException;
@@ -28,42 +29,48 @@ import java.util.Optional;
 public class ChallengeParticipationServiceImpl implements ChallengeParticipationService {
 
     private final UserContextService userContextService;
-    private final ChallengeParticipationMapper participationMapper;
     private final JpaChallengeParticipationRepository participationRepository;
     private final JpaChallengeInfoRepository challengeInfoRepository;
     private final JpaPaymentRepository paymentRepository;
     private final StringRedisTemplate redisTemplate;
+    private final ChallengeParticipationProducer participationProducer;
+
+    private static final Duration PENDING_TTL = Duration.ofMinutes(5);
 
     @Override
     @Transactional
     public Boolean check(String challengeId) {
         User currentUser = userContextService.getCurrentUser();
         String userId = currentUser.getId();
-        Challenge challenge = validChallengeAndParticipation(challengeId, userId);
 
-        return isRemaining(challengeId, challenge, userId);
+        Challenge challenge = validateChallengeNotParticipated(challengeId, userId);
+        reserveSlotOrFail(challengeId, challenge, userId);
+        return true;
     }
 
     @Override
     @Transactional
-    public ChallengeParticipationResponseDto participate(String challengeId, ChallengeParticipationRequestDto requestDto) {
-
+    public void participate(String challengeId, ChallengeParticipationRequestDto requestDto) {
         User currentUser = userContextService.getCurrentUser();
-        Challenge challenge = validChallengeAndParticipation(challengeId, currentUser.getId());
-        PaymentHistory payment = validPayment(requestDto.getPaymentId(), currentUser.getId());
+        String userId = currentUser.getId();
 
-        ChallengeParticipation participant = participationMapper.toParticipant(challenge, currentUser);
-        payment.updateChallenge(participant);
-        challenge.updateParticipantsCount();
+        validateChallengeNotParticipated(challengeId, userId);
+        validatePaymentOwnership(requestDto.getPaymentId(), userId);
 
-        participationRepository.save(participant);
-
-        return ChallengeParticipationResponseDto.builder()
-                .participationId(participant.getId())
+        ChallengeParticipationEvent event = ChallengeParticipationEvent.builder()
+                .challengeId(challengeId)
+                .userId(userId)
+                .paymentId(requestDto.getPaymentId())
                 .build();
+
+        try {
+            participationProducer.sendParticipationCompleteEvent(event);
+        } catch (JsonProcessingException e) {
+            throw new CustomException(ErrorCode.KAFKA_SEND_FAILED);
+        }
     }
 
-    private Challenge validChallengeAndParticipation(String challengeId, String userId) {
+    private Challenge validateChallengeNotParticipated(String challengeId, String userId) {
         Challenge challenge = challengeInfoRepository.findByIdAndIsDeletedFalse(challengeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHALLENGE_NOT_FOUND));
 
@@ -77,29 +84,36 @@ public class ChallengeParticipationServiceImpl implements ChallengeParticipation
         return challenge;
     }
 
-    private Boolean isRemaining(String challengeId, Challenge challenge, String userId) {
-        String challengeKey = "challengeId:" + challengeId + ":slots";
-        String pendingKey = "challengeId:" + challengeId + ":pending" + userId;
-        if (!redisTemplate.hasKey(challengeKey)) {
-            redisTemplate.opsForValue().set(
-                    "challengeId:" + challengeId + ":slots", String.valueOf(challenge.getMaxParticipants() - challenge.getParticipantsCount())
-            );
-        }
-        Long remain = redisTemplate.opsForValue().decrement(challengeKey);
-        if (remain < 0) {
-            throw new CustomException(ErrorCode.CHALLENGE_PARTICIPATION_CLOSED);
-        }
-
-        redisTemplate.opsForValue().set(pendingKey, "true", Duration.ofMinutes(5));
-        return true;
-    }
-
-    private PaymentHistory validPayment(String paymentId, String userId) {
+    private void validatePaymentOwnership(String paymentId, String userId) {
         PaymentHistory payment = paymentRepository.findByIdAndIsDeletedFalse(paymentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PAYMENT_NOT_FOUND));
         if (!payment.getOrderId().contains(userId)) {
             throw new CustomException(ErrorCode.UNAUTHORIZED);
         }
-        return payment;
+    }
+
+    private void reserveSlotOrFail(String challengeId, Challenge challenge, String userId) {
+        String slotsKey = buildSlotsKey(challengeId);
+        String pendingKey = buildPendingKey(challengeId, userId);
+
+        if (!redisTemplate.hasKey(slotsKey)) {
+            int remaining = challenge.getMaxParticipants() - challenge.getParticipantsCount();
+            redisTemplate.opsForValue().set(slotsKey, String.valueOf(remaining));
+        }
+
+        Long remain = redisTemplate.opsForValue().decrement(slotsKey);
+        if (remain == null || remain < 0) {
+            throw new CustomException(ErrorCode.CHALLENGE_PARTICIPATION_CLOSED);
+        }
+
+        redisTemplate.opsForValue().set(pendingKey, "true", PENDING_TTL);
+    }
+
+    private String buildSlotsKey(String challengeId) {
+        return "challenge:" + challengeId + ":slots";
+    }
+
+    private String buildPendingKey(String challengeId, String userId) {
+        return "challenge:" + challengeId + ":pending:" + userId;
     }
 }

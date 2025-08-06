@@ -10,6 +10,7 @@ import com.moyeo.backend.challenge.basic.domain.Challenge;
 import com.moyeo.backend.challenge.basic.infrastructure.repository.JpaChallengeInfoRepository;
 import com.moyeo.backend.challenge.participation.application.mapper.ChallengeParticipationMapper;
 import com.moyeo.backend.challenge.participation.domain.ChallengeParticipation;
+import com.moyeo.backend.challenge.participation.infrastructure.repository.JpaChallengeParticipationRepository;
 import com.moyeo.backend.common.enums.ErrorCode;
 import com.moyeo.backend.common.exception.CustomException;
 import com.moyeo.backend.common.mapper.PageMapper;
@@ -34,6 +35,7 @@ public class ChallengeServiceImpl implements ChallengeService {
 
     private final ChallengeMapper challengeMapper;
     private final JpaChallengeInfoRepository challengeInfoRepository;
+    private final JpaChallengeParticipationRepository participationRepository;
     private final PaymentRepository paymentRepository;
     private final UserContextService userContextService;
     private final PageMapper pageMapper;
@@ -50,9 +52,11 @@ public class ChallengeServiceImpl implements ChallengeService {
         validDate(requestDto.getStartDate());
 
         Challenge challenge = challengeMapper.toChallenge(requestDto, currentUser);
-        ChallengeParticipation participation = participationMapper.toParticipant(challenge, currentUser);
-        log.info("option : {}", challenge.getOption());
         challengeInfoRepository.save(challenge);
+        log.info("option : {}", challenge.getOption());
+
+        ChallengeParticipation participation = participationMapper.toParticipant(challenge, currentUser);
+        participationRepository.save(participation);
         payment.updateChallenge(participation);
 
         String challengeId = challenge.getId();
