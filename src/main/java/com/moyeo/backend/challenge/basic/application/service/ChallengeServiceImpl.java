@@ -8,10 +8,10 @@ import com.moyeo.backend.challenge.basic.application.dto.ChallengeResponseDto;
 import com.moyeo.backend.challenge.basic.application.mapper.ChallengeMapper;
 import com.moyeo.backend.challenge.basic.application.validator.ChallengeValidator;
 import com.moyeo.backend.challenge.basic.domain.Challenge;
-import com.moyeo.backend.challenge.basic.infrastructure.repository.JpaChallengeInfoRepository;
+import com.moyeo.backend.challenge.basic.domain.repository.ChallengeInfoRepository;
 import com.moyeo.backend.challenge.participation.application.mapper.ChallengeParticipationMapper;
 import com.moyeo.backend.challenge.participation.domain.ChallengeParticipation;
-import com.moyeo.backend.challenge.participation.infrastructure.repository.JpaChallengeParticipationRepository;
+import com.moyeo.backend.challenge.participation.domain.ChallengeParticipationRepository;
 import com.moyeo.backend.common.mapper.PageMapper;
 import com.moyeo.backend.common.response.PageResponse;
 import com.moyeo.backend.payment.application.validator.PaymentValidator;
@@ -31,8 +31,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class ChallengeServiceImpl implements ChallengeService {
 
     private final ChallengeMapper challengeMapper;
-    private final JpaChallengeInfoRepository challengeInfoRepository;
-    private final JpaChallengeParticipationRepository participationRepository;
+    private final ChallengeInfoRepository challengeInfoRepository;
+    private final ChallengeParticipationRepository participationRepository;
     private final UserContextService userContextService;
     private final PageMapper pageMapper;
     private final ChallengeParticipationMapper participationMapper;

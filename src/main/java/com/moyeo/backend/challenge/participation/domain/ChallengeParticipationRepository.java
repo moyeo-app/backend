@@ -4,4 +4,6 @@ import java.util.Optional;
 
 public interface ChallengeParticipationRepository {
     Optional<ChallengeParticipation> findByChallengeIdAndUserIdAndIsDeletedFalse(String challengeId, String userId);
+
+    ChallengeParticipation save(ChallengeParticipation participation);
 }

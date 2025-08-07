@@ -8,4 +8,6 @@ public interface PaymentRepository {
     Optional<PaymentHistory> findByIdAndIsDeletedFalse(String paymentId);
 
     Optional<PaymentHistory> findByIdAndUserIdAndIsDeletedFalse(String paymentId, String userId);
+
+    PaymentHistory save(PaymentHistory paymentHistory);
 }

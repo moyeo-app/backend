@@ -6,9 +6,9 @@ import com.moyeo.backend.payment.application.dto.PaymentResponseDto;
 import com.moyeo.backend.payment.application.mapper.PaymentMapper;
 import com.moyeo.backend.payment.application.validator.PaymentValidator;
 import com.moyeo.backend.payment.domain.PaymentHistory;
+import com.moyeo.backend.payment.domain.PaymentRepository;
 import com.moyeo.backend.payment.domain.PaymentStatus;
 import com.moyeo.backend.payment.domain.PaymentType;
-import com.moyeo.backend.payment.infrastructure.JpaPaymentRepository;
 import com.moyeo.backend.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentMapper paymentMapper;
-    private final JpaPaymentRepository paymentRepository;
+    private final PaymentRepository paymentRepository;
     private final UserContextService userContextService;
     private final PaymentValidator paymentValidator;
 
