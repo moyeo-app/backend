@@ -21,7 +21,7 @@ public class ChallengeValidator {
     }
 
     // 시작일 유효성 검사
-    public void validateDate(LocalDate startDate) {
+    public void validateChallengeStartDate(LocalDate startDate) {
         if (startDate.isBefore(LocalDate.now())) {
             throw new CustomException(ErrorCode.INVALID_DATE);
         }

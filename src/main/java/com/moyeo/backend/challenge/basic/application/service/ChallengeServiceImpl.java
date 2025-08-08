@@ -52,7 +52,7 @@ public class ChallengeServiceImpl implements ChallengeService {
 
         User currentUser = userContextService.getCurrentUser();
         PaymentHistory payment = paymentValidator.getValidPaymentByIdAndUserId(requestDto.getPaymentId(), currentUser.getId());
-        challengeValidator.validateDate(requestDto.getStartDate());
+        challengeValidator.validateChallengeStartDate(requestDto.getStartDate());
 
         Challenge challenge = challengeMapper.toChallenge(requestDto, currentUser);
         challengeInfoRepository.save(challenge);
