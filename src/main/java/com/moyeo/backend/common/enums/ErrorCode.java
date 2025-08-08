@@ -21,6 +21,11 @@ public enum ErrorCode implements ResponseCode {
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "허용되지 않은 HTTP 메서드입니다."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다."),
     INVALID_SORT_EXCEPTION(HttpStatus.BAD_REQUEST, "유효하지 않은 정렬 조건입니다."),
+    // Kafka
+    KAFKA_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "카프카 호출에 실패했습니다."),
+
+    // Redis
+    RIDES_SET_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "레디스 키 세팅에 실패했습니다." ),
 
     // OAuth
     OAUTH_API_CALL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "OAuth API 호출에 실패했습니다."),
@@ -41,8 +46,7 @@ public enum ErrorCode implements ResponseCode {
     INVALID_DATE(HttpStatus.BAD_REQUEST, "해당 날짜는 선택 불가합니다."),
     // Challenge - Participation
     PARTICIPATION_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 처리된 챌린지 참여 요청입니다."),
-    CHALLENGE_PARTICIPATION_CLOSED(HttpStatus.BAD_REQUEST, "챌린지 참여 인원 모집이 마감되었습니다."),
-    KAFKA_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "카프카 호출에 실패했습니다.");
+    CHALLENGE_PARTICIPATION_CLOSED(HttpStatus.BAD_REQUEST, "챌린지 참여 인원 모집이 마감되었습니다.");
 
     private final HttpStatus status;
     private final String message;

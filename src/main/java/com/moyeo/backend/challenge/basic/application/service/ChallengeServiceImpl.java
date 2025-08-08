@@ -12,6 +12,8 @@ import com.moyeo.backend.challenge.basic.domain.repository.ChallengeInfoReposito
 import com.moyeo.backend.challenge.participation.application.mapper.ChallengeParticipationMapper;
 import com.moyeo.backend.challenge.participation.domain.ChallengeParticipation;
 import com.moyeo.backend.challenge.participation.domain.ChallengeParticipationRepository;
+import com.moyeo.backend.common.enums.ErrorCode;
+import com.moyeo.backend.common.exception.CustomException;
 import com.moyeo.backend.common.mapper.PageMapper;
 import com.moyeo.backend.common.response.PageResponse;
 import com.moyeo.backend.payment.application.validator.PaymentValidator;
@@ -24,6 +26,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Duration;
 
 @Slf4j(topic = "ChallengeService")
 @Service
@@ -39,6 +43,8 @@ public class ChallengeServiceImpl implements ChallengeService {
     private final StringRedisTemplate redisTemplate;
     private final ChallengeValidator challengeValidator;
     private final PaymentValidator paymentValidator;
+
+    private static final Duration SLOTS_TTL = Duration.ofMinutes(5);
 
     @Override
     @Transactional
@@ -57,7 +63,16 @@ public class ChallengeServiceImpl implements ChallengeService {
         payment.updateChallenge(participation);
 
         String challengeId = challenge.getId();
-        redisTemplate.opsForValue().set("challengeId:" + challengeId + ":slots", String.valueOf(requestDto.getMaxParticipants()));
+        try {
+            redisTemplate.opsForValue().set(
+                    "challengeId:" + challengeId + ":slots",
+                    String.valueOf(requestDto.getMaxParticipants()),
+                    SLOTS_TTL
+            );
+        } catch (Exception e) {
+            log.error("[Redis] Redis Slots 설정 실패 : {}", challengeId, e);
+            throw new CustomException(ErrorCode.RIDES_SET_FAILED);
+        }
         return ChallengeResponseDto.builder()
                 .challengeId(challengeId)
                 .build();
