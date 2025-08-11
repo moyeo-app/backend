@@ -80,13 +80,14 @@ public class ChallengeParticipationServiceImpl implements ChallengeParticipation
         String slotsKey = buildSlotsKey(challengeId);
         String pendingKey = buildPendingKey(challengeId, userId);
 
-        if (!redisTemplate.hasKey(slotsKey)) {
-            int remaining = challenge.getMaxParticipants() - challenge.getParticipantsCount();
-            redisTemplate.opsForValue().set(slotsKey, String.valueOf(remaining));
-        }
+        int remaining = challenge.getMaxParticipants() - challenge.getParticipantsCount();
+        redisTemplate.opsForValue().setIfAbsent(slotsKey, String.valueOf(remaining));
 
         Long remain = redisTemplate.opsForValue().decrement(slotsKey);
         if (remain == null || remain < 0) {
+            if (remain != null && remain < 0) {
+                redisTemplate.opsForValue().increment(slotsKey);
+            }
             throw new CustomException(ErrorCode.CHALLENGE_PARTICIPATION_CLOSED);
         }
 
