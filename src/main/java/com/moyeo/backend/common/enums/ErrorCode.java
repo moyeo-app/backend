@@ -46,7 +46,8 @@ public enum ErrorCode implements ResponseCode {
     INVALID_DATE(HttpStatus.BAD_REQUEST, "해당 날짜는 선택 불가합니다."),
     // Challenge - Participation
     PARTICIPATION_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 처리된 챌린지 참여 요청입니다."),
-    CHALLENGE_PARTICIPATION_CLOSED(HttpStatus.BAD_REQUEST, "챌린지 참여 인원 모집이 마감되었습니다.");
+    CHALLENGE_PARTICIPATION_CLOSED(HttpStatus.BAD_REQUEST, "챌린지 참여 인원 모집이 마감되었습니다."),
+    NO_PENDING_RESERVATION(HttpStatus.BAD_REQUEST, "챌린지 참여 대기 상태가 아닙니다.");
 
     private final HttpStatus status;
     private final String message;

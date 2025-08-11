@@ -54,6 +54,10 @@ public class ChallengeParticipationServiceImpl implements ChallengeParticipation
     public void participate(String challengeId, ChallengeParticipationRequestDto requestDto) {
         User currentUser = userContextService.getCurrentUser();
         String userId = currentUser.getId();
+        String pendingKey = buildPendingKey(challengeId, userId);
+        if (!redisTemplate.hasKey(pendingKey)) {
+            throw new CustomException(ErrorCode.NO_PENDING_RESERVATION);
+        }
 
         challengeValidator.getValidChallengeById(challengeId);
         participationValidator.validateNotParticipated(challengeId, userId);
