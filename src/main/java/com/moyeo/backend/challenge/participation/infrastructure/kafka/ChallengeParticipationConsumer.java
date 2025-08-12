@@ -1,5 +1,6 @@
 package com.moyeo.backend.challenge.participation.infrastructure.kafka;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moyeo.backend.challenge.basic.application.validator.ChallengeValidator;
 import com.moyeo.backend.challenge.basic.domain.Challenge;
@@ -32,34 +33,30 @@ public class ChallengeParticipationConsumer {
 
     @KafkaListener(topics = "challenge.participation.complete", groupId = "challenge-consumer")
     @Transactional
-    public void consume(String messageJson) {
-        try {
-            ChallengeParticipationEvent message = objectMapper.readValue(messageJson, ChallengeParticipationEvent.class);
-            String challengeId = message.getChallengeId();
-            String userId = message.getUserId();
-            String paymentId = message.getPaymentId();
+    public void consume(String messageJson) throws JsonProcessingException {
+        ChallengeParticipationEvent message = objectMapper.readValue(messageJson, ChallengeParticipationEvent.class);
+        String challengeId = message.getChallengeId();
+        String userId = message.getUserId();
+        String paymentId = message.getPaymentId();
 
-            String pendingKey = buildPendingKey(challengeId, userId);
-            if (!redisTemplate.hasKey(pendingKey)) {
-                log.warn("[Kafka] 참여 실패 - TTL 만료된 요청입니다. userId={}, challengeId={}", userId, challengeId);
-                return;
-            }
-
-            Challenge challenge = challengeValidator.getValidChallengeById(challengeId);
-            User user = userValidator.getValidUserById(userId);
-            PaymentHistory payment = paymentValidator.getValidPaymentByIdAndUserId(paymentId, userId);
-
-            ChallengeParticipation participation = participationMapper.toParticipant(challenge, user);
-            payment.updateChallenge(participation);
-            challenge.updateParticipantsCount();
-
-            participationRepository.save(participation);
-            redisTemplate.delete(pendingKey);
-
-            log.info("[Kafka] 참여 확정 완료 userId={}, challengeId={}", userId, challengeId);
-        } catch (Exception e) {
-            log.error("[Kafka] 참여 확정 처리 중 예외 발생", e);
+        String pendingKey = buildPendingKey(challengeId, userId);
+        if (!redisTemplate.hasKey(pendingKey)) {
+            log.warn("[Kafka] 참여 실패 - TTL 만료된 요청입니다. userId={}, challengeId={}", userId, challengeId);
+            return;
         }
+
+        Challenge challenge = challengeValidator.getValidChallengeById(challengeId);
+        User user = userValidator.getValidUserById(userId);
+        PaymentHistory payment = paymentValidator.getValidPaymentByIdAndUserId(paymentId, userId);
+
+        ChallengeParticipation participation = participationMapper.toParticipant(challenge, user);
+        payment.updateChallenge(participation);
+        challenge.updateParticipantsCount();
+
+        participationRepository.save(participation);
+        redisTemplate.delete(pendingKey);
+
+        log.info("[Kafka] 참여 확정 완료 userId={}, challengeId={}", userId, challengeId);
     }
 
     private String buildPendingKey(String challengeId, String userId) {
