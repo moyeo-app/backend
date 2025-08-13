@@ -7,6 +7,7 @@ import com.moyeo.backend.challenge.basic.domain.Challenge;
 import com.moyeo.backend.challenge.participation.application.mapper.ChallengeParticipationMapper;
 import com.moyeo.backend.challenge.participation.application.validator.ChallengeParticipationValidator;
 import com.moyeo.backend.challenge.participation.domain.ChallengeParticipation;
+import com.moyeo.backend.challenge.participation.infrastructure.redis.ChallengeRedisKeyUtil;
 import com.moyeo.backend.challenge.participation.infrastructure.repository.JpaChallengeParticipationRepository;
 import com.moyeo.backend.payment.application.validator.PaymentValidator;
 import com.moyeo.backend.payment.domain.PaymentHistory;
@@ -41,7 +42,7 @@ public class ChallengeParticipationConsumer {
         String userId = message.getUserId();
         String paymentId = message.getPaymentId();
 
-        String pendingKey = buildPendingKey(challengeId, userId);
+        String pendingKey = ChallengeRedisKeyUtil.buildPendingKey(challengeId, userId);
         participationValidator.validateHasPending(pendingKey, challengeId, userId);
         participationValidator.validateNotParticipated(challengeId, userId);
 
@@ -57,10 +58,6 @@ public class ChallengeParticipationConsumer {
         redisTemplate.delete(pendingKey);
 
         log.info("[Kafka] 참여 확정 완료 userId={}, challengeId={}", userId, challengeId);
-    }
-
-    private String buildPendingKey(String challengeId, String userId) {
-        return "challenge:" + challengeId + ":pending:" + userId;
     }
 }
 

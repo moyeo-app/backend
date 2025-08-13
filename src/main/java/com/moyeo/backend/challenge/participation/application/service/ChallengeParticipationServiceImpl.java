@@ -8,6 +8,7 @@ import com.moyeo.backend.challenge.participation.application.dto.ChallengePartic
 import com.moyeo.backend.challenge.participation.application.validator.ChallengeParticipationValidator;
 import com.moyeo.backend.challenge.participation.infrastructure.kafka.ChallengeParticipationEvent;
 import com.moyeo.backend.challenge.participation.infrastructure.kafka.ChallengeParticipationProducer;
+import com.moyeo.backend.challenge.participation.infrastructure.redis.ChallengeRedisKeyUtil;
 import com.moyeo.backend.common.enums.ErrorCode;
 import com.moyeo.backend.common.exception.CustomException;
 import com.moyeo.backend.payment.application.validator.PaymentValidator;
@@ -54,7 +55,7 @@ public class ChallengeParticipationServiceImpl implements ChallengeParticipation
     public void participate(String challengeId, ChallengeParticipationRequestDto requestDto) {
         User currentUser = userContextService.getCurrentUser();
         String userId = currentUser.getId();
-        String pendingKey = buildPendingKey(challengeId, userId);
+        String pendingKey = ChallengeRedisKeyUtil.buildPendingKey(challengeId, userId);
         if (!redisTemplate.hasKey(pendingKey)) {
             throw new CustomException(ErrorCode.NO_PENDING_RESERVATION);
         }
@@ -73,8 +74,8 @@ public class ChallengeParticipationServiceImpl implements ChallengeParticipation
     }
 
     private void reserveSlotOrFail(String challengeId, Challenge challenge, String userId) {
-        String slotsKey = buildSlotsKey(challengeId);
-        String pendingKey = buildPendingKey(challengeId, userId);
+        String slotsKey = ChallengeRedisKeyUtil.buildSlotsKey(challengeId);
+        String pendingKey = ChallengeRedisKeyUtil.buildPendingKey(challengeId, userId);
 
         int remaining = challenge.getMaxParticipants() - challenge.getParticipantsCount();
         redisTemplate.opsForValue().setIfAbsent(slotsKey, String.valueOf(remaining),PENDING_TTL);
@@ -88,13 +89,5 @@ public class ChallengeParticipationServiceImpl implements ChallengeParticipation
         }
 
         redisTemplate.opsForValue().set(pendingKey, "true", PENDING_TTL);
-    }
-
-    private String buildSlotsKey(String challengeId) {
-        return "challenge:" + challengeId + ":slots";
-    }
-
-    private String buildPendingKey(String challengeId, String userId) {
-        return "challenge:" + challengeId + ":pending:" + userId;
     }
 }

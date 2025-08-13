@@ -12,6 +12,7 @@ import com.moyeo.backend.challenge.basic.domain.repository.ChallengeInfoReposito
 import com.moyeo.backend.challenge.participation.application.mapper.ChallengeParticipationMapper;
 import com.moyeo.backend.challenge.participation.domain.ChallengeParticipation;
 import com.moyeo.backend.challenge.participation.domain.ChallengeParticipationRepository;
+import com.moyeo.backend.challenge.participation.infrastructure.redis.ChallengeRedisKeyUtil;
 import com.moyeo.backend.common.enums.ErrorCode;
 import com.moyeo.backend.common.exception.CustomException;
 import com.moyeo.backend.common.mapper.PageMapper;
@@ -65,8 +66,8 @@ public class ChallengeServiceImpl implements ChallengeService {
         String challengeId = challenge.getId();
         try {
             redisTemplate.opsForValue().set(
-                    "challengeId:" + challengeId + ":slots",
-                    String.valueOf(requestDto.getMaxParticipants()),
+                    ChallengeRedisKeyUtil.buildSlotsKey(challengeId),
+                    String.valueOf(requestDto.getMaxParticipants() - 1),
                     SLOTS_TTL
             );
         } catch (Exception e) {
