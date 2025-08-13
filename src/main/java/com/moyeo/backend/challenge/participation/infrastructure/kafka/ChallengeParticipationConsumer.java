@@ -50,7 +50,7 @@ public class ChallengeParticipationConsumer {
         PaymentHistory payment = paymentValidator.getValidPaymentByIdAndUserId(paymentId, userId);
 
         ChallengeParticipation participation = participationMapper.toParticipant(challenge, user);
-        payment.updateChallenge(participation);
+        payment.updateParticipation(participation);
         challenge.updateParticipantsCount();
 
         participationRepository.save(participation);

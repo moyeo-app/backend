@@ -1,6 +1,5 @@
 package com.moyeo.backend.payment.domain;
 
-import com.moyeo.backend.challenge.basic.domain.Challenge;
 import com.moyeo.backend.challenge.participation.domain.ChallengeParticipation;
 import com.moyeo.backend.common.domain.BaseEntity;
 import com.moyeo.backend.user.domain.User;
@@ -48,7 +47,7 @@ public class PaymentHistory extends BaseEntity {
     @Column(nullable = false, unique = true)
     private String orderId;
 
-    public void updateChallenge(ChallengeParticipation participation) {
+    public void updateParticipation(ChallengeParticipation participation) {
         this.participation = participation;
     }
 }

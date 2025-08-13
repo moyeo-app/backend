@@ -60,7 +60,7 @@ public class ChallengeServiceImpl implements ChallengeService {
 
         ChallengeParticipation participation = participationMapper.toParticipant(challenge, currentUser);
         participationRepository.save(participation);
-        payment.updateChallenge(participation);
+        payment.updateParticipation(participation);
 
         String challengeId = challenge.getId();
         try {
