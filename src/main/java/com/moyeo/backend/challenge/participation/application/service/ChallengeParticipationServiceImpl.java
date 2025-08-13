@@ -77,7 +77,7 @@ public class ChallengeParticipationServiceImpl implements ChallengeParticipation
         String pendingKey = buildPendingKey(challengeId, userId);
 
         int remaining = challenge.getMaxParticipants() - challenge.getParticipantsCount();
-        redisTemplate.opsForValue().setIfAbsent(slotsKey, String.valueOf(remaining));
+        redisTemplate.opsForValue().setIfAbsent(slotsKey, String.valueOf(remaining),PENDING_TTL);
 
         Long remain = redisTemplate.opsForValue().decrement(slotsKey);
         if (remain == null || remain < 0) {
