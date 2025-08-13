@@ -69,11 +69,7 @@ public class ChallengeParticipationServiceImpl implements ChallengeParticipation
                 .paymentId(requestDto.getPaymentId())
                 .build();
 
-        try {
-            participationProducer.sendParticipationCompleteEvent(event);
-        } catch (JsonProcessingException e) {
-            throw new CustomException(ErrorCode.KAFKA_SEND_FAILED);
-        }
+        participationProducer.sendParticipationCompleteEvent(event);
     }
 
     private void reserveSlotOrFail(String challengeId, Challenge challenge, String userId) {
