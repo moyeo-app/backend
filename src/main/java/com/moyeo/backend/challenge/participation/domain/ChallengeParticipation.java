@@ -8,7 +8,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "challenge_participation")
+@Table(name = "challenge_participation",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"challenge_id", "user_id"}))
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
