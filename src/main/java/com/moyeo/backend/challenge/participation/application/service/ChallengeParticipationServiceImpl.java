@@ -1,6 +1,5 @@
 package com.moyeo.backend.challenge.participation.application.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.moyeo.backend.auth.application.service.UserContextService;
 import com.moyeo.backend.challenge.basic.application.validator.ChallengeValidator;
 import com.moyeo.backend.challenge.basic.domain.Challenge;
@@ -78,7 +77,7 @@ public class ChallengeParticipationServiceImpl implements ChallengeParticipation
         String pendingKey = ChallengeRedisKeyUtil.buildPendingKey(challengeId, userId);
 
         int remaining = challenge.getMaxParticipants() - challenge.getParticipantsCount();
-        redisTemplate.opsForValue().setIfAbsent(slotsKey, String.valueOf(remaining),PENDING_TTL);
+        redisTemplate.opsForValue().setIfAbsent(slotsKey, String.valueOf(remaining));
 
         Long remain = redisTemplate.opsForValue().decrement(slotsKey);
         if (remain == null || remain < 0) {
