@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moyeo.backend.challenge.basic.application.validator.ChallengeValidator;
 import com.moyeo.backend.challenge.basic.domain.Challenge;
 import com.moyeo.backend.challenge.participation.application.mapper.ChallengeParticipationMapper;
+import com.moyeo.backend.challenge.participation.application.validator.ChallengeParticipationValidator;
 import com.moyeo.backend.challenge.participation.domain.ChallengeParticipation;
 import com.moyeo.backend.challenge.participation.infrastructure.repository.JpaChallengeParticipationRepository;
 import com.moyeo.backend.payment.application.validator.PaymentValidator;
@@ -30,6 +31,7 @@ public class ChallengeParticipationConsumer {
     private final ChallengeValidator challengeValidator;
     private final UserValidator userValidator;
     private final PaymentValidator paymentValidator;
+    private final ChallengeParticipationValidator participationValidator;
 
     @KafkaListener(topics = "challenge.participation.complete", groupId = "challenge-consumer")
     @Transactional
@@ -40,10 +42,8 @@ public class ChallengeParticipationConsumer {
         String paymentId = message.getPaymentId();
 
         String pendingKey = buildPendingKey(challengeId, userId);
-        if (!redisTemplate.hasKey(pendingKey)) {
-            log.warn("[Kafka] 참여 실패 - TTL 만료된 요청입니다. userId={}, challengeId={}", userId, challengeId);
-            return;
-        }
+        participationValidator.validateHasPending(pendingKey, challengeId, userId);
+        participationValidator.validateNotParticipated(challengeId, userId);
 
         Challenge challenge = challengeValidator.getValidChallengeById(challengeId);
         User user = userValidator.getValidUserById(userId);
