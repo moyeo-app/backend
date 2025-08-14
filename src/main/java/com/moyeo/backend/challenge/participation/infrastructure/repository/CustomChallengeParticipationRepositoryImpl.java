@@ -69,6 +69,7 @@ public class CustomChallengeParticipationRepositoryImpl implements CustomChallen
         return new BooleanBuilder()
                 .and(isMine(userId))
                 .and(isDeletedFalse())
+                .and(challengeIsDeletedFalse())
                 .and(eqStatus(requestDto.getStatus()))
                 .and(betweenDate(requestDto.getDate()));
     }
@@ -79,6 +80,10 @@ public class CustomChallengeParticipationRepositoryImpl implements CustomChallen
 
     private BooleanExpression isDeletedFalse() {
         return challengeParticipation.isDeleted.isFalse();
+    }
+
+    private BooleanExpression challengeIsDeletedFalse() {
+        return challenge.isDeleted.isFalse();
     }
 
     private BooleanExpression eqStatus(ChallengeStatus status) {
