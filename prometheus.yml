@@ -2,6 +2,14 @@ global:
   scrape_interval: 15s
 
 scrape_configs:
+  - job_name: 'moyeo-redis'
+    static_configs:
+      - targets: ['moyeo-redis-exporter:9121']
+
+  - job_name: 'moyeo-kafka'
+    static_configs:
+      - targets: ['moyeo-kafka-exporter:9308']
+
   - job_name: 'moyeo-prometheus'
     static_configs:
       - targets: ['moyeo-prometheus:9090']
@@ -14,4 +22,4 @@ scrape_configs:
     metrics_path: '/actuator/prometheus'
     scrape_interval: 5s
     static_configs:
-      - targets: ["host.docker.internal:8080"]
+      - targets: ["moyeo-backend:8080"]

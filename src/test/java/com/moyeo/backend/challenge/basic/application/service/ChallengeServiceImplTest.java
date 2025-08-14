@@ -11,6 +11,7 @@ import com.moyeo.backend.challenge.basic.domain.TimeOption;
 import com.moyeo.backend.challenge.basic.domain.enums.ChallengeStatus;
 import com.moyeo.backend.challenge.basic.domain.enums.ChallengeType;
 import com.moyeo.backend.challenge.basic.infrastructure.repository.JpaChallengeInfoRepository;
+import com.moyeo.backend.challenge.participation.domain.ChallengeParticipation;
 import com.moyeo.backend.common.enums.ErrorCode;
 import com.moyeo.backend.common.exception.CustomException;
 import com.moyeo.backend.common.mapper.PageMapper;
@@ -193,7 +194,7 @@ class ChallengeServiceImplTest {
 
         // then
         verify(challengeInfoRepository).save(any(Challenge.class));
-        verify(payment).updateChallenge(any(Challenge.class));
+        verify(payment).updateParticipation(any(ChallengeParticipation.class));
         assertNotNull(responseDto);
     }
 

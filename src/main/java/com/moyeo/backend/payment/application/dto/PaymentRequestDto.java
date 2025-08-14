@@ -28,7 +28,7 @@ public class PaymentRequestDto {
     @Max(50000)
     private Integer totalAmount;
 
-    @Schema(description = "주문 ID", example = "challenge_3_user_17")
+    @Schema(description = "주문 ID", example = "ord_20250805_userId")
     @NotBlank
     private String orderId;
 }

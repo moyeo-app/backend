@@ -1,6 +1,6 @@
 package com.moyeo.backend.payment.domain;
 
-import com.moyeo.backend.challenge.basic.domain.Challenge;
+import com.moyeo.backend.challenge.participation.domain.ChallengeParticipation;
 import com.moyeo.backend.common.domain.BaseEntity;
 import com.moyeo.backend.user.domain.User;
 import jakarta.persistence.*;
@@ -23,8 +23,8 @@ public class PaymentHistory extends BaseEntity {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "challenge_id")
-    private Challenge challenge;
+    @JoinColumn(name = "participation_id")
+    private ChallengeParticipation participation;
 
     @Column(nullable = false)
     private int totalAmount;
@@ -47,7 +47,7 @@ public class PaymentHistory extends BaseEntity {
     @Column(nullable = false, unique = true)
     private String orderId;
 
-    public void updateChallenge(Challenge challenge) {
-        this.challenge = challenge;
+    public void updateParticipation(ChallengeParticipation participation) {
+        this.participation = participation;
     }
 }
