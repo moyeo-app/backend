@@ -3,17 +3,24 @@ package com.moyeo.backend.challenge.participation.application.service;
 import com.moyeo.backend.auth.application.service.UserContextService;
 import com.moyeo.backend.challenge.basic.application.validator.ChallengeValidator;
 import com.moyeo.backend.challenge.basic.domain.Challenge;
+import com.moyeo.backend.challenge.participation.application.dto.ChallengeParticipationReadRequestDto;
+import com.moyeo.backend.challenge.participation.application.dto.ChallengeParticipationReadResponseDto;
 import com.moyeo.backend.challenge.participation.application.dto.ChallengeParticipationRequestDto;
 import com.moyeo.backend.challenge.participation.application.validator.ChallengeParticipationValidator;
+import com.moyeo.backend.challenge.participation.domain.ChallengeParticipationRepository;
 import com.moyeo.backend.challenge.participation.infrastructure.kafka.ChallengeParticipationEvent;
 import com.moyeo.backend.challenge.participation.infrastructure.kafka.ChallengeParticipationProducer;
 import com.moyeo.backend.challenge.participation.infrastructure.redis.ChallengeRedisKeyUtil;
 import com.moyeo.backend.common.enums.ErrorCode;
 import com.moyeo.backend.common.exception.CustomException;
+import com.moyeo.backend.common.mapper.PageMapper;
+import com.moyeo.backend.common.response.PageResponse;
 import com.moyeo.backend.payment.application.validator.PaymentValidator;
 import com.moyeo.backend.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +38,8 @@ public class ChallengeParticipationServiceImpl implements ChallengeParticipation
     private final PaymentValidator paymentValidator;
     private final ChallengeValidator challengeValidator;
     private final ChallengeParticipationValidator participationValidator;
+    private final ChallengeParticipationRepository participationRepository;
+    private final PageMapper pageMapper;
 
     private static final Duration PENDING_TTL = Duration.ofMinutes(5);
 
@@ -70,6 +79,16 @@ public class ChallengeParticipationServiceImpl implements ChallengeParticipation
                 .build();
 
         participationProducer.sendParticipationCompleteEvent(event);
+    }
+
+    @Override
+    @Transactional
+    public PageResponse<ChallengeParticipationReadResponseDto> gets(ChallengeParticipationReadRequestDto requestDto, Pageable pageable) {
+        User currentUser = userContextService.getCurrentUser();
+        String userId = currentUser.getId();
+
+        Page<ChallengeParticipationReadResponseDto> participationList = participationRepository.findMyParticipation(userId, requestDto, pageable);
+        return pageMapper.toPageResponse(participationList);
     }
 
     private void reserveSlotOrFail(String challengeId, Challenge challenge, String userId) {

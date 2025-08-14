@@ -13,13 +13,11 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import static com.moyeo.backend.challenge.basic.domain.QChallenge.challenge;
 import static com.moyeo.backend.common.util.QueryDslSortUtil.getOrderSpecifiers;

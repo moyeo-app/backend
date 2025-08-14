@@ -1,8 +1,14 @@
 package com.moyeo.backend.challenge.participation.presentation;
 
 
+import com.moyeo.backend.challenge.basic.application.dto.ChallengeReadRequestDto;
+import com.moyeo.backend.challenge.basic.application.dto.ChallengeReadResponseDto;
+import com.moyeo.backend.challenge.participation.application.dto.ChallengeParticipationReadRequestDto;
+import com.moyeo.backend.challenge.participation.application.dto.ChallengeParticipationReadResponseDto;
 import com.moyeo.backend.challenge.participation.application.dto.ChallengeParticipationRequestDto;
+import com.moyeo.backend.common.request.PageRequestDto;
 import com.moyeo.backend.common.response.ApiResponse;
+import com.moyeo.backend.common.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,4 +24,8 @@ public interface ChallengeParticipationControllerDocs {
 
     @Operation(summary = "챌린지 참여 API", description = "챌린지 참여 API 입니다.")
     ResponseEntity<ApiResponse<Void>> participate(String id, ChallengeParticipationRequestDto requestDto);
+
+    @Operation(summary = "챌린지 참여 목록 조회 API", description = "챌린지 목록 조회 API 입니다.")
+    ResponseEntity<ApiResponse<PageResponse<ChallengeParticipationReadResponseDto>>> gets(
+            ChallengeParticipationReadRequestDto requestDto, PageRequestDto page);
 }
