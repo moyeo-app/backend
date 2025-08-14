@@ -7,8 +7,8 @@ import com.moyeo.backend.challenge.basic.domain.Challenge;
 import com.moyeo.backend.challenge.participation.application.mapper.ChallengeParticipationMapper;
 import com.moyeo.backend.challenge.participation.application.validator.ChallengeParticipationValidator;
 import com.moyeo.backend.challenge.participation.domain.ChallengeParticipation;
+import com.moyeo.backend.challenge.participation.domain.ChallengeParticipationRepository;
 import com.moyeo.backend.challenge.participation.infrastructure.redis.ChallengeRedisKeyUtil;
-import com.moyeo.backend.challenge.participation.infrastructure.repository.JpaChallengeParticipationRepository;
 import com.moyeo.backend.payment.application.validator.PaymentValidator;
 import com.moyeo.backend.payment.domain.PaymentHistory;
 import com.moyeo.backend.user.application.validator.UserValidator;
@@ -27,7 +27,7 @@ public class ChallengeParticipationConsumer {
 
     private final ObjectMapper objectMapper;
     private final StringRedisTemplate redisTemplate;
-    private final JpaChallengeParticipationRepository participationRepository;
+    private final ChallengeParticipationRepository participationRepository;
     private final ChallengeParticipationMapper participationMapper;
     private final ChallengeValidator challengeValidator;
     private final UserValidator userValidator;
