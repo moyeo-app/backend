@@ -29,7 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Slf4j(topic = "ChallengeService")
 @Service
@@ -69,10 +69,13 @@ public class ChallengeServiceImpl implements ChallengeService {
             redisTemplate.opsForValue().set(
                     ChallengeRedisKeyUtil.buildSlotsKey(challengeId),
                     String.valueOf(requestDto.getMaxParticipants() - 1),
-                    Duration.between(LocalDate.now(),  requestDto.getStartDate()).plusMinutes(5)
+                    Duration.between(
+                            LocalDateTime.now(),
+                            requestDto.getStartDate().atTime(23,59,59)
+                    ).plusMinutes(5)
             );
         } catch (Exception e) {
-            log.error("[Redis] Redis Slots 설정 실패 : {}", challengeId, e);
+            log.error("[Redis] Redis Slots 설정 실패 : {}, error = {}", challengeId, e.getMessage());
             throw new CustomException(ErrorCode.RIDES_SET_FAILED);
         }
         return ChallengeResponseDto.builder()
