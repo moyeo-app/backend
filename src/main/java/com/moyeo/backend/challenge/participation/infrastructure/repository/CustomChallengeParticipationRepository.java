@@ -1,16 +1,11 @@
-package com.moyeo.backend.challenge.participation.domain;
+package com.moyeo.backend.challenge.participation.infrastructure.repository;
 
 import com.moyeo.backend.challenge.participation.application.dto.ChallengeParticipationReadRequestDto;
 import com.moyeo.backend.challenge.participation.application.dto.ChallengeParticipationReadResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.Optional;
-
-public interface ChallengeParticipationRepository {
-    Optional<ChallengeParticipation> findByChallengeIdAndUserIdAndIsDeletedFalse(String challengeId, String userId);
-
-    ChallengeParticipation save(ChallengeParticipation participation);
+public interface CustomChallengeParticipationRepository {
 
     Page<ChallengeParticipationReadResponseDto> findMyParticipation(String userId, ChallengeParticipationReadRequestDto requestDto, Pageable pageable);
 }

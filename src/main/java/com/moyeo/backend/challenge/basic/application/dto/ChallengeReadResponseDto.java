@@ -40,7 +40,7 @@ public class ChallengeReadResponseDto {
     @Schema(description = "챌린지 상세 설명", example = "매일 2시간 이상 공부하는 챌린지입니다.")
     private String description;
 
-    @Schema(description = "챌린지 상태", example = "매일 2시간 이상 공부하는 챌린지입니다.")
+    @Schema(description = "챌린지 상태", example = "RECRUITING")
     private ChallengeStatus status;
 
     @Schema(
