@@ -47,7 +47,11 @@ public enum ErrorCode implements ResponseCode {
     // Challenge - Participation
     PARTICIPATION_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 처리된 챌린지 참여 요청입니다."),
     CHALLENGE_PARTICIPATION_CLOSED(HttpStatus.BAD_REQUEST, "챌린지 참여 인원 모집이 마감되었습니다."),
-    NO_PENDING_RESERVATION(HttpStatus.BAD_REQUEST, "챌린지 참여 대기 상태가 아닙니다.");
+    NO_PENDING_RESERVATION(HttpStatus.BAD_REQUEST, "챌린지 참여 대기 상태가 아닙니다."),
+    PARTICIPATION_NOT_FOUND(HttpStatus.NOT_FOUND, "챌린지 참여 정보를 찾을 수 없습니다."),
+    // Challenge - Log
+    CHALLENGE_NOT_IN_TIME(HttpStatus.BAD_REQUEST, "챌린지 키워드 입력 시간이 아닙니다."),
+    CHALLENGE_OPTION_TYPE_MISMATCH(HttpStatus.BAD_REQUEST, "챌린지 키워드 입력 옵션이 아닙니다.");
 
     private final HttpStatus status;
     private final String message;
