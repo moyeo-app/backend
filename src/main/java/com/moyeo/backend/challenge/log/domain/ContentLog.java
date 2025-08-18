@@ -1,5 +1,6 @@
 package com.moyeo.backend.challenge.log.domain;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
@@ -10,8 +11,8 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonTypeName("CONTENT")
 public class ContentLog extends ChallengeLogContent {
-    private final String type = "CONTENT";
     private List<@NotBlank String> keywords;
     private String text;
 }

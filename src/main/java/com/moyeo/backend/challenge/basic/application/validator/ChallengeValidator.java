@@ -37,6 +37,10 @@ public class ChallengeValidator {
         Challenge challenge = challengeInfoRepository.findByIdAndIsDeletedFalse(challengeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHALLENGE_NOT_FOUND));
 
+        if (challenge.getType() != ChallengeType.CONTENT) {
+            throw new CustomException(ErrorCode.CHALLENGE_TYPE_MISMATCH);
+        }
+
         ChallengeOption option = challenge.getOption();
         if (option instanceof StartEndOption startEndOption) {
             LocalTime now = LocalTime.now(ZoneId.of("Asia/Seoul"));

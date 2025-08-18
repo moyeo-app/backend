@@ -12,7 +12,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "challenge_log",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"challenge_id", "participation_id"}))
+        uniqueConstraints = @UniqueConstraint(columnNames = {"challenge_id", "participation_id", "date"}))
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

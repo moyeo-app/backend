@@ -51,7 +51,8 @@ public enum ErrorCode implements ResponseCode {
     PARTICIPATION_NOT_FOUND(HttpStatus.NOT_FOUND, "챌린지 참여 정보를 찾을 수 없습니다."),
     // Challenge - Log
     CHALLENGE_NOT_IN_TIME(HttpStatus.BAD_REQUEST, "챌린지 키워드 입력 시간이 아닙니다."),
-    CHALLENGE_OPTION_TYPE_MISMATCH(HttpStatus.BAD_REQUEST, "챌린지 키워드 입력 옵션이 아닙니다.");
+    CHALLENGE_OPTION_TYPE_MISMATCH(HttpStatus.BAD_REQUEST, "챌린지 타입과 옵션이 일치하지 않습니다."),
+    CHALLENGE_TYPE_MISMATCH(HttpStatus.BAD_REQUEST, "챌린지 타입이 일치하지 않습니다.");
 
     private final HttpStatus status;
     private final String message;
