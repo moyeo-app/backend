@@ -4,6 +4,7 @@ import com.moyeo.backend.challenge.basic.domain.Challenge;
 import com.moyeo.backend.challenge.basic.domain.ChallengeOption;
 import com.moyeo.backend.challenge.basic.domain.StartEndOption;
 import com.moyeo.backend.challenge.basic.domain.enums.ChallengeType;
+import com.moyeo.backend.challenge.basic.domain.repository.ChallengeInfoRepository;
 import com.moyeo.backend.challenge.basic.infrastructure.repository.JpaChallengeInfoRepository;
 import com.moyeo.backend.common.enums.ErrorCode;
 import com.moyeo.backend.common.exception.CustomException;
@@ -18,7 +19,7 @@ import java.time.ZoneId;
 @RequiredArgsConstructor
 public class ChallengeValidator {
 
-    private final JpaChallengeInfoRepository challengeInfoRepository;
+    private final ChallengeInfoRepository challengeInfoRepository;
 
     public Challenge getValidChallengeById(String challengeId) {
         return challengeInfoRepository.findByIdAndIsDeletedFalse(challengeId)
@@ -32,7 +33,6 @@ public class ChallengeValidator {
         }
     }
 
-    // 내용 타입 + 키워드 입력 시간 유효성 검사
     public Challenge getValidContentChallengeById(String challengeId) {
         Challenge challenge = challengeInfoRepository.findByIdAndIsDeletedFalse(challengeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHALLENGE_NOT_FOUND));
@@ -40,6 +40,13 @@ public class ChallengeValidator {
         if (challenge.getType() != ChallengeType.CONTENT) {
             throw new CustomException(ErrorCode.CHALLENGE_TYPE_MISMATCH);
         }
+
+        return challenge;
+    }
+
+    // 내용 타입 + 키워드 입력 시간 유효성 검사
+    public Challenge getValidContentChallengeByIdAndInTime(String challengeId) {
+        Challenge challenge = getValidContentChallengeById(challengeId);
 
         ChallengeOption option = challenge.getOption();
         if (option instanceof StartEndOption startEndOption) {

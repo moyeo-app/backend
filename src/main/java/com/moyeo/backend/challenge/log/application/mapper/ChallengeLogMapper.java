@@ -24,7 +24,7 @@ public interface ChallengeLogMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "challenge", expression = "java(challenge)")
     @Mapping(target = "participation", expression = "java(participation)")
-    @Mapping(target = "date", expression = "java(java.time.LocalDate.now())")
+    @Mapping(target = "date", expression = "java(java.time.LocalDate.now(java.time.ZoneId.of(\"Asia/Seoul\")))")
     @Mapping(target = "status", source = "status")
     ChallengeLog toLog(Challenge challenge, ChallengeParticipation participation, ChallengeLogStatus status, ChallengeLogContent content);
 

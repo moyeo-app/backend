@@ -1,9 +1,10 @@
 package com.moyeo.backend.challenge.log.domain;
 
-import org.springframework.stereotype.Repository;
+import java.util.Optional;
 
-@Repository
 public interface ChallengeLogRepository {
 
     ChallengeLog save(ChallengeLog challengeLog);
+
+    Optional<ChallengeLog> findByIdAndIsDeletedFalse(String logId);
 }

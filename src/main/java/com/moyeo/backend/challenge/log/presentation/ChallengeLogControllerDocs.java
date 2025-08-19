@@ -1,5 +1,6 @@
 package com.moyeo.backend.challenge.log.presentation;
 
+import com.moyeo.backend.challenge.log.application.dto.ChallengeLogContentRequestDto;
 import com.moyeo.backend.challenge.log.application.dto.ChallengeLogKeywordRequestDto;
 import com.moyeo.backend.challenge.log.application.dto.ChallengeLogResponseDto;
 import com.moyeo.backend.common.response.ApiResponse;
@@ -14,4 +15,9 @@ public interface ChallengeLogControllerDocs {
 
     @Operation(summary = "챌린지 인증 키워드 입력 API", description = "챌린지 인증 키워드 입력 API 입니다.")
     ResponseEntity<ApiResponse<ChallengeLogResponseDto>> create(String id, ChallengeLogKeywordRequestDto requestDto);
+
+    @Operation(summary = "챌린지 인증 내용 입력 API", description = "챌린지 인증 내용 입력 API 입니다.")
+    ResponseEntity<ApiResponse<ChallengeLogResponseDto>> update(String challengeId,
+                                                                String logId,
+                                                                ChallengeLogContentRequestDto requestDto);
 }
