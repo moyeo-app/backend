@@ -3,6 +3,8 @@ package com.moyeo.backend.challenge.log.domain;
 import com.moyeo.backend.challenge.basic.domain.Challenge;
 import com.moyeo.backend.challenge.participation.domain.ChallengeParticipation;
 import com.moyeo.backend.common.domain.BaseEntity;
+import com.moyeo.backend.common.enums.ErrorCode;
+import com.moyeo.backend.common.exception.CustomException;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -41,4 +43,15 @@ public class ChallengeLog extends BaseEntity {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ChallengeLogStatus status;
+
+    public void updateContent(String text) {
+        if (!(content instanceof ContentLog contentLog)) {
+            throw new CustomException(ErrorCode.CHALLENGE_LOG_CONTENT_TYPE_MISMATCH);
+        }
+
+        this.content = ContentLog.builder()
+                .keywords(contentLog.getKeywords())
+                .text(text)
+                .build();
+    }
 }

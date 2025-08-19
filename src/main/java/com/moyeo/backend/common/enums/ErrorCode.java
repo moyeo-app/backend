@@ -52,7 +52,11 @@ public enum ErrorCode implements ResponseCode {
     // Challenge - Log
     CHALLENGE_NOT_IN_TIME(HttpStatus.BAD_REQUEST, "챌린지 키워드 입력 시간이 아닙니다."),
     CHALLENGE_OPTION_TYPE_MISMATCH(HttpStatus.BAD_REQUEST, "챌린지 타입과 옵션이 일치하지 않습니다."),
-    CHALLENGE_TYPE_MISMATCH(HttpStatus.BAD_REQUEST, "챌린지 타입이 일치하지 않습니다.");
+    CHALLENGE_TYPE_MISMATCH(HttpStatus.BAD_REQUEST, "챌린지 타입이 일치하지 않습니다."),
+    CHALLENGE_LOG_NOT_FOUND(HttpStatus.NOT_FOUND, "챌린지 인증 정보를 찾을 수 없습니다."),
+    CONTENT_KEYWORDS_NOT_FOUND(HttpStatus.BAD_REQUEST, "내용에 모든 키워드가 포함되어 있지 않습니다."),
+    CHALLENGE_LOG_DATE_MISMATCH(HttpStatus.BAD_REQUEST, "챌린지 인증 날짜가 일치하지 않습니다."),
+    CHALLENGE_LOG_CONTENT_TYPE_MISMATCH(HttpStatus.BAD_REQUEST, "챌린지 인증 내용 타입이 일치하지 않습니다.");
 
     private final HttpStatus status;
     private final String message;

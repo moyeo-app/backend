@@ -1,5 +1,6 @@
 package com.moyeo.backend.challenge.log.presentation;
 
+import com.moyeo.backend.challenge.log.application.dto.ChallengeLogContentRequestDto;
 import com.moyeo.backend.challenge.log.application.service.ChallengeLogService;
 import com.moyeo.backend.challenge.log.application.dto.ChallengeLogKeywordRequestDto;
 import com.moyeo.backend.challenge.log.application.dto.ChallengeLogResponseDto;
@@ -24,6 +25,16 @@ public class ChallengeLogController implements  ChallengeLogControllerDocs{
             @Valid @RequestBody ChallengeLogKeywordRequestDto requestDto) {
         return ResponseEntity.ok().body(ApiResponse.success(
                 challengeLogService.create(challengeId, requestDto)
+        ));
+    }
+
+    @PatchMapping("/{challengeId}/logs/{logId}/text")
+    public ResponseEntity<ApiResponse<ChallengeLogResponseDto>> update(
+            @PathVariable String challengeId,
+            @PathVariable String logId,
+            @Valid @RequestBody ChallengeLogContentRequestDto requestDto) {
+        return ResponseEntity.ok().body(ApiResponse.success(
+                challengeLogService.update(challengeId, logId, requestDto)
         ));
     }
 }
