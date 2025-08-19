@@ -33,4 +33,9 @@ public class ChallengeParticipationValidator {
             throw new CustomException(ErrorCode.NO_PENDING_RESERVATION);
         }
     }
+
+    public ChallengeParticipation getValidParticipationByUserId(String challengeId, String userId) {
+        return participationRepository.findByChallengeIdAndUserIdAndIsDeletedFalse(challengeId, userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PARTICIPATION_NOT_FOUND));
+    }
 }

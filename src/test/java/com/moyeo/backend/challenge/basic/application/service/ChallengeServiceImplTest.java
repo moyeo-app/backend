@@ -4,13 +4,14 @@ import com.moyeo.backend.auth.application.service.UserContextService;
 import com.moyeo.backend.challenge.basic.application.dto.*;
 import com.moyeo.backend.challenge.basic.application.mapper.ChallengeMapper;
 import com.moyeo.backend.challenge.basic.application.mapper.ChallengeMapperImpl;
+import com.moyeo.backend.challenge.basic.application.validator.ChallengeValidator;
 import com.moyeo.backend.challenge.basic.domain.Challenge;
 import com.moyeo.backend.challenge.basic.domain.ChallengeOption;
 import com.moyeo.backend.challenge.basic.domain.StartEndOption;
 import com.moyeo.backend.challenge.basic.domain.TimeOption;
 import com.moyeo.backend.challenge.basic.domain.enums.ChallengeStatus;
 import com.moyeo.backend.challenge.basic.domain.enums.ChallengeType;
-import com.moyeo.backend.challenge.basic.infrastructure.repository.JpaChallengeInfoRepository;
+import com.moyeo.backend.challenge.basic.domain.repository.ChallengeInfoRepository;
 import com.moyeo.backend.challenge.participation.domain.ChallengeParticipation;
 import com.moyeo.backend.common.enums.ErrorCode;
 import com.moyeo.backend.common.exception.CustomException;
@@ -40,6 +41,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -60,13 +62,16 @@ class ChallengeServiceImplTest {
     private UserContextService userContextService;
 
     @Mock
-    private JpaChallengeInfoRepository challengeInfoRepository;
+    private ChallengeInfoRepository challengeInfoRepository;
 
     @Mock
     private PaymentRepository paymentRepository;
 
     @Mock
     private PaymentHistory payment;
+
+    @Mock
+    private ChallengeValidator challengeValidator;
 
     @Spy
     private ChallengeMapper challengeMapper = new ChallengeMapperImpl();
@@ -140,15 +145,15 @@ class ChallengeServiceImplTest {
                 Arguments.of(
                         ChallengeType.ATTENDANCE,
                         StartEndOptionDto.builder()
-                                .start("11:00")
-                                .end("13:00")
+                                .start(LocalTime.parse("11:00"))
+                                .end(LocalTime.parse("13:00"))
                                 .build()
                 ),
                 Arguments.of(
                         ChallengeType.CONTENT,
                         StartEndOptionDto.builder()
-                                .start("11:00")
-                                .end("13:00")
+                                .start(LocalTime.parse("11:00"))
+                                .end(LocalTime.parse("13:00"))
                                 .build()
                 )
         );
@@ -165,15 +170,15 @@ class ChallengeServiceImplTest {
                 Arguments.of(
                         ChallengeType.ATTENDANCE,
                         StartEndOption.builder()
-                                .start("11:00")
-                                .end("13:00")
+                                .start(LocalTime.parse("11:00"))
+                                .end(LocalTime.parse("13:00"))
                                 .build()
                 ),
                 Arguments.of(
                         ChallengeType.CONTENT,
                         StartEndOption.builder()
-                                .start("11:00")
-                                .end("13:00")
+                                .start(LocalTime.parse("11:00"))
+                                .end(LocalTime.parse("13:00"))
                                 .build()
                 )
         );
@@ -238,7 +243,9 @@ class ChallengeServiceImplTest {
         // given
         String challengeId = "CHALLENGE-UUID-1";
 
-        when(challengeInfoRepository.findByIdAndIsDeletedFalse(challengeId)).thenReturn(Optional.empty());
+        when(challengeValidator.getValidChallengeById(challengeId)).thenThrow(
+                new CustomException(ErrorCode.CHALLENGE_NOT_FOUND)
+        );
 
         // when & then
         CustomException ex = assertThrows(CustomException.class, () -> {

@@ -1,8 +1,6 @@
 package com.moyeo.backend.challenge.participation.presentation;
 
 
-import com.moyeo.backend.challenge.basic.application.dto.ChallengeReadRequestDto;
-import com.moyeo.backend.challenge.basic.application.dto.ChallengeReadResponseDto;
 import com.moyeo.backend.challenge.participation.application.dto.ChallengeParticipationReadRequestDto;
 import com.moyeo.backend.challenge.participation.application.dto.ChallengeParticipationReadResponseDto;
 import com.moyeo.backend.challenge.participation.application.dto.ChallengeParticipationRequestDto;
