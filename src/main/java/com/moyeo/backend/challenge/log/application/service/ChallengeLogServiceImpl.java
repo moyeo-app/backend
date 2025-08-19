@@ -58,10 +58,12 @@ public class ChallengeLogServiceImpl implements ChallengeLogService {
         String userId = currentUser.getId();
 
         challengeValidator.getValidContentChallengeById(challengeId);
-        participationValidator.getValidParticipationByUserId(challengeId, userId);
+        ChallengeParticipation participation = participationValidator.getValidParticipationByUserId(challengeId, userId);
+        ChallengeLog challengeLog = logValidator.getValidLogById(logId);
+        logValidator.validLogOwnership(participation.getId(), challengeLog.getParticipation().getId());
 
         String text = requestDto.getText();
-        ChallengeLog challengeLog = logValidator.getValidText(logId, text);
+        logValidator.validText(logId, text);
         challengeLog.updateContent(text);
 
         return ChallengeLogResponseDto.builder()

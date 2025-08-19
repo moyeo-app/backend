@@ -29,7 +29,13 @@ public class ChallengeLogValidator {
                 .orElseThrow(() -> new CustomException(ErrorCode.CHALLENGE_LOG_NOT_FOUND));
     }
 
-    public ChallengeLog getValidText(String logId, String text) {
+    public void validLogOwnership(String participationId, String logParticipationId) {
+        if (!participationId.equals(logParticipationId)) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+    }
+
+    public void validText(String logId, String text) {
         ChallengeLog challengeLog = getValidLogById(logId);
 
         LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
@@ -53,6 +59,5 @@ public class ChallengeLogValidator {
         } else {
             throw new CustomException(ErrorCode.CHALLENGE_LOG_CONTENT_TYPE_MISMATCH);
         }
-        return challengeLog;
     }
 }
