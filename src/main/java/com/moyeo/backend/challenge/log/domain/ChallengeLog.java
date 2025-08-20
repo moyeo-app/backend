@@ -53,5 +53,6 @@ public class ChallengeLog extends BaseEntity {
                 .keywords(contentLog.getKeywords())
                 .text(text)
                 .build();
+        this.status = ChallengeLogStatus.SUCCESS;
     }
 }
