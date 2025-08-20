@@ -65,6 +65,11 @@ public class AuthServiceImpl implements AuthService {
         return LoginResponseDto.builder()
                 .isNewUser(false)
                 .jwtAccessToken(jwtUtil.createToken(oauth.get().getUser().getId(), oauth.get().getUser().getNickname()))
+                .userId(oauth.get().getUser().getId())
+                .nickname(oauth.get().getUser().getNickname())
+                .character(oauth.get().getUser().getCharacter())
+                .bank(oauth.get().getUser().getBank())
+                .accountNumber(oauth.get().getUser().getAccountNumber())
                 .build();
     }
 }
