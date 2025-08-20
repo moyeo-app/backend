@@ -3,9 +3,7 @@ package com.moyeo.backend.challenge.log.application.service;
 import com.moyeo.backend.auth.application.service.UserContextService;
 import com.moyeo.backend.challenge.basic.application.validator.ChallengeValidator;
 import com.moyeo.backend.challenge.basic.domain.Challenge;
-import com.moyeo.backend.challenge.log.application.dto.ChallengeLogContentRequestDto;
-import com.moyeo.backend.challenge.log.application.dto.ChallengeLogKeywordRequestDto;
-import com.moyeo.backend.challenge.log.application.dto.ChallengeLogResponseDto;
+import com.moyeo.backend.challenge.log.application.dto.*;
 import com.moyeo.backend.challenge.log.application.mapper.ChallengeLogMapper;
 import com.moyeo.backend.challenge.log.application.validator.ChallengeLogValidator;
 import com.moyeo.backend.challenge.log.domain.ChallengeLog;
@@ -14,9 +12,13 @@ import com.moyeo.backend.challenge.log.domain.ChallengeLogStatus;
 import com.moyeo.backend.challenge.log.domain.ContentLog;
 import com.moyeo.backend.challenge.participation.application.validator.ChallengeParticipationValidator;
 import com.moyeo.backend.challenge.participation.domain.ChallengeParticipation;
+import com.moyeo.backend.common.mapper.PageMapper;
+import com.moyeo.backend.common.response.PageResponse;
 import com.moyeo.backend.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +33,7 @@ public class ChallengeLogServiceImpl implements ChallengeLogService {
     private final ChallengeLogValidator logValidator;
     private final ChallengeLogRepository challengeLogRepository;
     private final ChallengeLogMapper challengeLogMapper;
+    private final PageMapper pageMapper;
 
     @Override
     @Transactional
@@ -69,5 +72,12 @@ public class ChallengeLogServiceImpl implements ChallengeLogService {
         return ChallengeLogResponseDto.builder()
                 .logId(challengeLog.getId())
                 .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<ChallengeLogReadResponseDto> gets(String challengeId, ChallengeLogReadRequestDto requestDto, Pageable pageable) {
+        Page<ChallengeLogReadResponseDto> logs = challengeLogRepository.getLogs(requestDto, pageable);
+        return pageMapper.toPageResponse(logs);
     }
 }

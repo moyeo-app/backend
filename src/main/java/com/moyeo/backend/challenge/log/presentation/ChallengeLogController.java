@@ -1,13 +1,14 @@
 package com.moyeo.backend.challenge.log.presentation;
 
-import com.moyeo.backend.challenge.log.application.dto.ChallengeLogContentRequestDto;
+import com.moyeo.backend.challenge.log.application.dto.*;
 import com.moyeo.backend.challenge.log.application.service.ChallengeLogService;
-import com.moyeo.backend.challenge.log.application.dto.ChallengeLogKeywordRequestDto;
-import com.moyeo.backend.challenge.log.application.dto.ChallengeLogResponseDto;
+import com.moyeo.backend.common.request.PageRequestDto;
 import com.moyeo.backend.common.response.ApiResponse;
+import com.moyeo.backend.common.response.PageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,5 +37,14 @@ public class ChallengeLogController implements  ChallengeLogControllerDocs{
         return ResponseEntity.ok().body(ApiResponse.success(
                 challengeLogService.update(challengeId, logId, requestDto)
         ));
+    }
+
+    @GetMapping("/{challengeId}/logs")
+    public ResponseEntity<ApiResponse<PageResponse<ChallengeLogReadResponseDto>>> gets(
+            @PathVariable String challengeId,
+            @ParameterObject @ModelAttribute ChallengeLogReadRequestDto requestDto,
+            @ParameterObject @ModelAttribute PageRequestDto page) {
+        return ResponseEntity.ok().body(ApiResponse.success(
+                challengeLogService.gets(challengeId, requestDto, page.toPageable())));
     }
 }
