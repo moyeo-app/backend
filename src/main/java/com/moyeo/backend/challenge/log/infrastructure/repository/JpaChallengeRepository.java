@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface JpaChallengeRepository extends ChallengeLogRepository, JpaRepository<ChallengeLog, UUID> {
+public interface JpaChallengeRepository extends ChallengeLogRepository, JpaRepository<ChallengeLog, UUID>, CustomChallengeLogRepository {
 }
