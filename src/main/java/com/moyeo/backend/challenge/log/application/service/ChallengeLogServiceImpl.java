@@ -77,7 +77,7 @@ public class ChallengeLogServiceImpl implements ChallengeLogService {
     @Override
     @Transactional(readOnly = true)
     public PageResponse<ChallengeLogReadResponseDto> gets(String challengeId, ChallengeLogReadRequestDto requestDto, Pageable pageable) {
-        Page<ChallengeLogReadResponseDto> logs = challengeLogRepository.getLogs(requestDto, pageable);
+        Page<ChallengeLogReadResponseDto> logs = challengeLogRepository.getLogs(challengeId, requestDto, pageable);
         return pageMapper.toPageResponse(logs);
     }
 }

@@ -35,9 +35,9 @@ public class CustomChallengeLogRepositoryImpl implements CustomChallengeLogRepos
     );
 
     @Override
-    public Page<ChallengeLogReadResponseDto> getLogs(ChallengeLogReadRequestDto requestDto, Pageable pageable) {
+    public Page<ChallengeLogReadResponseDto> getLogs(String challengeId, ChallengeLogReadRequestDto requestDto, Pageable pageable) {
 
-        BooleanBuilder booleanBuilder = booleanBuilder(requestDto);
+        BooleanBuilder booleanBuilder = booleanBuilder(challengeId, requestDto);
 
         JPAQuery<ChallengeLog> logs = jpaQueryFactory
                 .selectFrom(challengeLog)
@@ -51,8 +51,8 @@ public class CustomChallengeLogRepositoryImpl implements CustomChallengeLogRepos
         JPAQuery<Long> total = jpaQueryFactory
                 .select(challengeLog.count())
                 .from(challengeLog)
-                .join(challengeLog.participation ,challengeParticipation).fetchJoin()
-                .join(challengeParticipation.user, user).fetchJoin()
+                .join(challengeLog.participation ,challengeParticipation)
+                .join(challengeParticipation.user, user)
                 .where(booleanBuilder);
 
         List<ChallengeLogReadResponseDto> results = logs.fetch().stream()
@@ -66,11 +66,12 @@ public class CustomChallengeLogRepositoryImpl implements CustomChallengeLogRepos
         );
     }
 
-    private BooleanBuilder booleanBuilder(ChallengeLogReadRequestDto requestDto) {
+    private BooleanBuilder booleanBuilder(String challengeId, ChallengeLogReadRequestDto requestDto) {
 
         return new BooleanBuilder()
                 .and(isDeletedFalse())
                 .and(challengeIsDeletedFalse())
+                .and(eqChallenge(challengeId))
                 .and(eqStatus(requestDto.getStatus()));
     }
 
@@ -80,6 +81,10 @@ public class CustomChallengeLogRepositoryImpl implements CustomChallengeLogRepos
 
     private BooleanExpression challengeIsDeletedFalse() {
         return challengeLog.challenge.isDeleted.isFalse();
+    }
+
+    private BooleanExpression eqChallenge(String challengeId) {
+        return challengeLog.challenge.id.eq(challengeId);
     }
 
     private BooleanExpression eqStatus(ChallengeLogStatus status) {

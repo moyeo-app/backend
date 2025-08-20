@@ -7,5 +7,5 @@ import org.springframework.data.domain.Pageable;
 
 public interface CustomChallengeLogRepository {
 
-    Page<ChallengeLogReadResponseDto> getLogs(ChallengeLogReadRequestDto requestDto, Pageable pageable);
+    Page<ChallengeLogReadResponseDto> getLogs(String challengeId, ChallengeLogReadRequestDto requestDto, Pageable pageable);
 }

@@ -13,5 +13,5 @@ public interface ChallengeLogRepository {
 
     Optional<ChallengeLog> findByIdAndIsDeletedFalse(String logId);
 
-    Page<ChallengeLogReadResponseDto> getLogs(ChallengeLogReadRequestDto requestDto, Pageable pageable);
+    Page<ChallengeLogReadResponseDto> getLogs(String challengeId, ChallengeLogReadRequestDto requestDto, Pageable pageable);
 }
