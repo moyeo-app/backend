@@ -80,4 +80,16 @@ public class ChallengeLogServiceImpl implements ChallengeLogService {
         Page<ChallengeLogReadResponseDto> logs = challengeLogRepository.getLogs(challengeId, requestDto, pageable);
         return pageMapper.toPageResponse(logs);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ChallengeLogReadResponseDto getByUser(String challengeId) {
+        User currentUser = userContextService.getCurrentUser();
+        String userId = currentUser.getId();
+
+        Challenge challenge = challengeValidator.getValidChallengeById(challengeId);
+        ChallengeParticipation participation = participationValidator.getValidParticipationByUserId(challenge.getId(), userId);
+        ChallengeLog challengeLog = logValidator.getValidLogByUser(participation.getId());
+        return challengeLogMapper.toLogDto(challengeLog);
+    }
 }

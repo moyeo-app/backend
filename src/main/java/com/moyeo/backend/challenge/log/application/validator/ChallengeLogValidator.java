@@ -60,4 +60,10 @@ public class ChallengeLogValidator {
             throw new CustomException(ErrorCode.CHALLENGE_LOG_CONTENT_TYPE_MISMATCH);
         }
     }
+
+    public ChallengeLog getValidLogByUser(String participationId) {
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
+        return logRepository.findByParticipationIdAndIsDeletedFalseAndDate(participationId, today)
+                .orElseThrow(() -> new CustomException(ErrorCode.CHALLENGE_LOG_NOT_FOUND));
+    }
 }

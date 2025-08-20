@@ -47,4 +47,11 @@ public class ChallengeLogController implements  ChallengeLogControllerDocs{
         return ResponseEntity.ok().body(ApiResponse.success(
                 challengeLogService.gets(challengeId, requestDto, page.toPageable())));
     }
+
+    @GetMapping("/{challengeId}/logs/me")
+    public ResponseEntity<ApiResponse<ChallengeLogReadResponseDto>> getByUser(@PathVariable String challengeId) {
+        return ResponseEntity.ok().body(ApiResponse.success(
+                challengeLogService.getByUser(challengeId)
+        ));
+    }
 }
