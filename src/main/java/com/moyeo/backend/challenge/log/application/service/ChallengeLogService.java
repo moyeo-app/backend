@@ -11,4 +11,6 @@ public interface ChallengeLogService {
     ChallengeLogResponseDto update(String challengeId, String logId, ChallengeLogContentRequestDto requestDto);
 
     PageResponse<ChallengeLogReadResponseDto> gets(String challengeId, ChallengeLogReadRequestDto requestDto, Pageable pageable);
+
+    ChallengeLogReadResponseDto getByUser(String challengeId);
 }

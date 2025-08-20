@@ -25,4 +25,7 @@ public interface ChallengeLogControllerDocs {
     ResponseEntity<ApiResponse<PageResponse<ChallengeLogReadResponseDto>>> gets(String challengeId,
                                                                  ChallengeLogReadRequestDto requestDto,
                                                                  PageRequestDto page);
+
+    @Operation(summary = "본인 챌린지 인증 내용 단건 조회 API", description = "본인 챌린지 인증 내용 단건 조회 API 입니다.")
+    ResponseEntity<ApiResponse<ChallengeLogReadResponseDto>> getByUser(String challengeId);
 }
