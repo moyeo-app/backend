@@ -24,6 +24,9 @@ repositories {
 }
 
 dependencies {
+	// Spring Batch
+	implementation "org.springframework.boot:spring-boot-starter-batch"
+
 	//Kafka
 	implementation 'org.springframework.kafka:spring-kafka'
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
