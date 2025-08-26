@@ -1,13 +1,17 @@
 package com.moyeo.backend.challenge.log.infrastructure.repository;
 
+import com.moyeo.backend.challenge.log.application.dto.ChallengeLogDailyAggregateDto;
 import com.moyeo.backend.challenge.log.application.dto.ChallengeLogReadRequestDto;
 import com.moyeo.backend.challenge.log.application.dto.ChallengeLogReadResponseDto;
+import com.moyeo.backend.challenge.log.application.dto.QChallengeLogDailyAggregateDto;
 import com.moyeo.backend.challenge.log.application.mapper.ChallengeLogMapper;
 import com.moyeo.backend.challenge.log.domain.ChallengeLog;
 import com.moyeo.backend.challenge.log.domain.ChallengeLogStatus;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.ComparableExpressionBase;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -66,6 +71,32 @@ public class CustomChallengeLogRepositoryImpl implements CustomChallengeLogRepos
         );
     }
 
+    @Override
+    public List<ChallengeLogDailyAggregateDto> aggregateDailyByUser(LocalDate date) {
+
+        BooleanBuilder booleanBuilder = booleanBuilder(date);
+
+        NumberExpression<Long> minutesPerLog = Expressions.numberTemplate(
+                Long.class,
+                "cast(floor( (cast(function('date_part','epoch', function('age', {0}, {1})) as big_decimal)) / 60.0 ) as long)",
+                challengeLog.updatedAt, challengeLog.createdAt
+        );
+
+        NumberExpression<Long> totalMinutes = minutesPerLog.sum().coalesce(0L);
+
+        return jpaQueryFactory.select(new QChallengeLogDailyAggregateDto(
+                challengeParticipation.user.id,
+                        challengeLog.date,
+                        totalMinutes
+                ))
+                .from(challengeLog)
+                .join(challengeLog.participation, challengeParticipation)
+                .join(challengeParticipation.user, user)
+                .where(booleanBuilder)
+                .groupBy(challengeParticipation.user.id, challengeLog.date)
+                .fetch();
+    }
+
     private BooleanBuilder booleanBuilder(String challengeId, ChallengeLogReadRequestDto requestDto) {
 
         return new BooleanBuilder()
@@ -73,6 +104,15 @@ public class CustomChallengeLogRepositoryImpl implements CustomChallengeLogRepos
                 .and(challengeIsDeletedFalse())
                 .and(eqChallenge(challengeId))
                 .and(eqStatus(requestDto.getStatus()));
+    }
+
+    private BooleanBuilder booleanBuilder(LocalDate date) {
+
+        return new BooleanBuilder()
+                .and(isDeletedFalse())
+                .and(challengeIsDeletedFalse())
+                .and(eqDate(date))
+                .and(eqStatus(ChallengeLogStatus.SUCCESS));
     }
 
     private BooleanExpression isDeletedFalse() {
@@ -89,5 +129,9 @@ public class CustomChallengeLogRepositoryImpl implements CustomChallengeLogRepos
 
     private BooleanExpression eqStatus(ChallengeLogStatus status) {
         return status != null ? challengeLog.status.eq(status) : null;
+    }
+
+    private BooleanExpression eqDate(LocalDate date) {
+        return challengeLog.date.eq(date);
     }
 }

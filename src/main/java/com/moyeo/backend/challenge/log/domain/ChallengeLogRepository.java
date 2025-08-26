@@ -1,11 +1,13 @@
 package com.moyeo.backend.challenge.log.domain;
 
+import com.moyeo.backend.challenge.log.application.dto.ChallengeLogDailyAggregateDto;
 import com.moyeo.backend.challenge.log.application.dto.ChallengeLogReadRequestDto;
 import com.moyeo.backend.challenge.log.application.dto.ChallengeLogReadResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 public interface ChallengeLogRepository {
@@ -17,4 +19,6 @@ public interface ChallengeLogRepository {
     Page<ChallengeLogReadResponseDto> getLogs(String challengeId, ChallengeLogReadRequestDto requestDto, Pageable pageable);
 
     Optional<ChallengeLog> findByParticipationIdAndIsDeletedFalseAndDate(String participationId, LocalDate date);
+
+    List<ChallengeLogDailyAggregateDto> aggregateDailyByUser(LocalDate date);
 }
