@@ -7,6 +7,7 @@ import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -26,10 +27,10 @@ public class StudyBatchConfig {
     }
 
     @Bean
-    public Job studyCalendarJob(Step studyCalendarJob) {
+    public Job studyCalendarJob(@Qualifier("aggregateStudyStep") Step aggregateStudyStep) {
         return new JobBuilder("studyCalendarJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
-                .start(studyCalendarJob)
+                .start(aggregateStudyStep)
                 .build();
     }
 }

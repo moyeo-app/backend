@@ -76,13 +76,13 @@ public class CustomChallengeLogRepositoryImpl implements CustomChallengeLogRepos
 
         BooleanBuilder booleanBuilder = booleanBuilder(date);
 
-        NumberExpression<Integer> minutesPerLog = Expressions.numberTemplate(
-                Integer.class,
-                "cast(floor( (cast(function('date_part','epoch', function('age', {0}, {1})) as big_decimal)) / 60.0 ) as integer)",
+        NumberExpression<Long> minutesPerLog = Expressions.numberTemplate(
+                Long.class,
+                "cast(floor( (cast(function('date_part','epoch', function('age', {0}, {1})) as big_decimal)) / 60.0 ) as long)",
                 challengeLog.updatedAt, challengeLog.createdAt
         );
 
-        NumberExpression<Integer> totalMinutes = minutesPerLog.sum().coalesce(0);
+        NumberExpression<Long> totalMinutes = minutesPerLog.sum().coalesce(0L);
 
         return jpaQueryFactory.select(new QChallengeLogDailyAggregateDto(
                 challengeParticipation.user.id,

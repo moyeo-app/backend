@@ -39,7 +39,8 @@ public class StudyCalendarUpsertRepositoryImpl implements StudyCalendarUpsertRep
         DO UPDATE SET
             total_minutes = EXCLUDED.total_minutes,
             updated_at    = EXCLUDED.updated_at,
-            updated_by    = EXCLUDED.updated_by
+            updated_by    = EXCLUDED.updated_by,
+            is_deleted    = false
         """;
 
     @Override
@@ -51,7 +52,7 @@ public class StudyCalendarUpsertRepositoryImpl implements StudyCalendarUpsertRep
 
          for (ChallengeLogDailyAggregateDto c : list) {
              buffer.add(new MapSqlParameterSource()
-                     .addValue("id", UUID.randomUUID().toString())
+                     .addValue("id", UUID.randomUUID())
                      .addValue("userId", c.userId())
                      .addValue("date", c.date())
                      .addValue("totalMinutes", c.totalMinutes())

@@ -7,7 +7,7 @@ import java.time.LocalDate;
 public record ChallengeLogDailyAggregateDto(
         String userId,
         LocalDate date,
-        int totalMinutes)
+        long totalMinutes)
 {
     @QueryProjection
     public ChallengeLogDailyAggregateDto {
