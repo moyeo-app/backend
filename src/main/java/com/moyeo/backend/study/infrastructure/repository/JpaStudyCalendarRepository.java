@@ -10,6 +10,5 @@ import java.util.UUID;
 @Repository
 public interface JpaStudyCalendarRepository extends
         StudyCalendarRepository, JpaRepository<StudyCalendar, UUID>,
-        StudyCalendarUpsertRepository {
-
+        StudyCalendarUpsertRepository, CustomStudyCalendarRepository {
 }
