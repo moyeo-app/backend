@@ -51,4 +51,7 @@ public class ChallengeReadResponseDto {
 
     @Schema(description = "규칙 (주 n 일)", example = "7")
     private int rule;
+
+    @Schema(description = "챌린지 참여 여부", example = "true")
+    private Boolean participating;
 }
