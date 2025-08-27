@@ -29,6 +29,11 @@ public interface ChallengeMapper {
     @Mapping(target = "option", expression = "java(toOptionDto(challenge.getOption()))")
     ChallengeReadResponseDto toChallengeDto(Challenge challenge);
 
+    @Mapping(source = "challenge.id", target = "challengeId")
+    @Mapping(target = "option", expression = "java(toOptionDto(challenge.getOption()))")
+    @Mapping(source = "participating", target = "participating")
+    ChallengeReadResponseDto toChallengeDto(Challenge challenge, boolean participating);
+
     default ChallengeOption toOption(ChallengeOptionDto dto) {
         if (dto instanceof TimeOptionDto time) {
             return TimeOption.builder()

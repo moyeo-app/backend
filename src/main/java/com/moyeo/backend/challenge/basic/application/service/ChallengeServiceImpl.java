@@ -87,7 +87,12 @@ public class ChallengeServiceImpl implements ChallengeService {
     @Transactional(readOnly = true)
     public ChallengeReadResponseDto getById(String id) {
         Challenge challenge = challengeValidator.getValidChallengeById(id);
-        return challengeMapper.toChallengeDto(challenge);
+
+        User currentUser = userContextService.getCurrentUser();
+        String userId = currentUser.getId();
+
+        boolean participating = participationRepository.existsByChallengeIdAndUserIdAndIsDeletedFalse(id, userId);
+        return challengeMapper.toChallengeDto(challenge, participating);
     }
 
     @Override

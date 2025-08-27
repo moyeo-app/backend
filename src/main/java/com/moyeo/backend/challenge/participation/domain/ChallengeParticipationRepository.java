@@ -13,4 +13,6 @@ public interface ChallengeParticipationRepository {
     ChallengeParticipation save(ChallengeParticipation participation);
 
     Page<ChallengeParticipationReadResponseDto> findMyParticipation(String userId, ChallengeParticipationReadRequestDto requestDto, Pageable pageable);
+
+    boolean existsByChallengeIdAndUserIdAndIsDeletedFalse(String challengeId, String userId);
 }
