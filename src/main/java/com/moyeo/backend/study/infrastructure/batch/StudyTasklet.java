@@ -27,8 +27,9 @@ public class StudyTasklet implements Tasklet {
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         LocalDate date = LocalDate.parse(targetDate);
+        log.info("[Batch] 총 공부 시간/주간 학습 통계 업데이트 배치 시작 date = {}", date);
         studyService.aggregate(date);
-        log.info("[Batch] 총 공부 시간 업데이트 배치 완료 date = {}", date);
+        log.info("[Batch] 총 공부 시간/주간 학습 통계 업데이트 배치 완료 date = {}", date);
         return RepeatStatus.FINISHED;
     }
 }
