@@ -3,6 +3,7 @@ package com.moyeo.backend.routine.infrastructure;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moyeo.backend.routine.application.dto.RoutineStatReadResponseDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j(topic = "RoutineStatUpsertRepositoryImpl")
 @RequiredArgsConstructor
 public class RoutineStatUpsertRepositoryImpl implements RoutineStatUpsertRepository {
 
@@ -64,10 +66,11 @@ public class RoutineStatUpsertRepositoryImpl implements RoutineStatUpsertReposit
                 );
             } catch (Exception e) {
                 highJson = "[]";
+                log.warn("출석률 높은 요일 직렬화 실패, userId={}, startDate={}, e=[]", r.userId(), r.startDate(), e);
             }
 
             buffer.add(new MapSqlParameterSource()
-                    .addValue("id", UUID.randomUUID().toString())
+                    .addValue("id", UUID.randomUUID())
                     .addValue("userId", r.userId())
                     .addValue("startDate", r.startDate())
                     .addValue("totalMinutes", r.totalMinutes())
