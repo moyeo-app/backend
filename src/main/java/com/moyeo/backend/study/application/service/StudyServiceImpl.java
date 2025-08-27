@@ -4,6 +4,7 @@ import com.moyeo.backend.auth.application.service.UserContextService;
 import com.moyeo.backend.challenge.log.application.dto.ChallengeLogDailyAggregateDto;
 import com.moyeo.backend.challenge.log.domain.ChallengeLogRepository;
 import com.moyeo.backend.routine.application.dto.RoutineStatReadResponseDto;
+import com.moyeo.backend.routine.domain.RoutineStatRepository;
 import com.moyeo.backend.study.application.dto.*;
 import com.moyeo.backend.study.application.validator.StudyCalendarValidator;
 import com.moyeo.backend.study.domain.StudyCalendarRepository;
@@ -31,6 +32,7 @@ public class StudyServiceImpl implements StudyService {
     private final StudyCalendarRepository studyCalendarRepository;
     private final UserContextService userContextService;
     private final StudyCalendarValidator calendarValidator;
+    private final RoutineStatRepository routineStatRepository;
 
     @Override
     @Transactional
@@ -59,6 +61,9 @@ public class StudyServiceImpl implements StudyService {
         List<RoutineStatReadResponseDto> stats = list.stream()
                 .map(this::computeWeeklyAgg)
                 .toList();
+
+        routineStatRepository.upsertAll(stats);
+        log.info("주간 학습 통계 업데이트 완료, weekStart = {}, stats = {}", monday, stats);
     }
 
     private RoutineStatReadResponseDto computeWeeklyAgg(WeeklyAgg agg) {
