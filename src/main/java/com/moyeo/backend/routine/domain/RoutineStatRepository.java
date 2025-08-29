@@ -10,4 +10,6 @@ public interface RoutineStatRepository {
     void upsertAll(List<RoutineStatReadResponseDto> stats);
 
     Optional<RoutineStat> findByUserIdAndStartDateAndIsDeletedFalse(String userId, LocalDate startDate);
+
+    List<RoutineStat> findAllByStartDateAndIsDeletedFalse(LocalDate startDate);
 }

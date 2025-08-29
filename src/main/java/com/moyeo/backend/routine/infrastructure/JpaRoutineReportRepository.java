@@ -9,5 +9,6 @@ import java.util.UUID;
 
 @Repository
 public interface JpaRoutineReportRepository extends
-        RoutineReportRepository, JpaRepository<RoutineReport, UUID>{
+        RoutineReportRepository, JpaRepository<RoutineReport, UUID>,
+        RoutineReportUpsertRepository {
 }
