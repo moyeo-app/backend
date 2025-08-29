@@ -1,9 +1,10 @@
 package com.moyeo.backend.routine.application.service;
 
 import com.moyeo.backend.auth.application.service.UserContextService;
-import com.moyeo.backend.routine.application.dto.RoutineStatReadRequestDto;
+import com.moyeo.backend.routine.application.dto.RoutineReadRequestDto;
+import com.moyeo.backend.routine.application.dto.RoutineReportReadResponseDto;
 import com.moyeo.backend.routine.application.dto.RoutineStatReadResponseDto;
-import com.moyeo.backend.routine.application.mapper.RoutineStatMapper;
+import com.moyeo.backend.routine.application.mapper.RoutineMapper;
 import com.moyeo.backend.routine.domain.*;
 import com.moyeo.backend.routine.infrastructure.client.AiClient;
 import com.moyeo.backend.study.application.dto.WeeklyAgg;
@@ -30,7 +31,7 @@ public class RoutineServiceImpl implements RoutineService {
 
     private final UserContextService userContextService;
     private final RoutineStatRepository routineStatRepository;
-    private final RoutineStatMapper routineStatMapper;
+    private final RoutineMapper routineMapper;
     private final StudyCalendarRepository studyCalendarRepository;
     private final AiClient aiClient;
     private final RoutineReportRepository routineReportRepository;
@@ -53,7 +54,7 @@ public class RoutineServiceImpl implements RoutineService {
 
     @Override
     @Transactional(readOnly = true)
-    public RoutineStatReadResponseDto getRoutineStat(RoutineStatReadRequestDto requestDto) {
+    public RoutineStatReadResponseDto getRoutineStat(RoutineReadRequestDto requestDto) {
         User currentUser = userContextService.getCurrentUser();
         String userId = currentUser.getId();
 
@@ -64,7 +65,7 @@ public class RoutineServiceImpl implements RoutineService {
         RoutineStat routineStat = routineStatRepository.findByUserIdAndStartDateAndIsDeletedFalse(userId, startDate)
                 .orElse(null);
 
-        return routineStatMapper.toRoutineStatDto(routineStat);
+        return routineMapper.toRoutineStatDto(routineStat);
     }
 
     @Override
@@ -98,6 +99,21 @@ public class RoutineServiceImpl implements RoutineService {
                         reports.size(), list.size() - reports.size(), monday);
             }
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public RoutineReportReadResponseDto getRoutineReport(RoutineReadRequestDto requestDto) {
+        User currentUser = userContextService.getCurrentUser();
+        String userId = currentUser.getId();
+
+        LocalDate startDate = requestDto.getDate() == null ?
+                LocalDate.now(ZoneId.of("Asia/Seoul")).with(previousOrSame(DayOfWeek.MONDAY)).minusWeeks(1)
+                : requestDto.getDate().with(previousOrSame(DayOfWeek.MONDAY));
+
+        RoutineReport routineReport = routineReportRepository.findByUserIdAndStartDateAndIsDeletedFalse(userId, startDate)
+                .orElse(null);
+        return routineMapper.toRoutineReportDto(routineReport);
     }
 
     private RoutineStatReadResponseDto computeWeeklyAgg(WeeklyAgg agg) {
