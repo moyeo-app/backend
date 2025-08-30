@@ -1,8 +1,9 @@
 package com.moyeo.backend.routine.presentation;
 
 import com.moyeo.backend.common.response.ApiResponse;
+import com.moyeo.backend.routine.application.dto.RoutineReportReadResponseDto;
 import com.moyeo.backend.routine.application.service.RoutineService;
-import com.moyeo.backend.routine.application.dto.RoutineStatReadRequestDto;
+import com.moyeo.backend.routine.application.dto.RoutineReadRequestDto;
 import com.moyeo.backend.routine.application.dto.RoutineStatReadResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +24,13 @@ public class RoutineController implements RoutineControllerDocs {
 
     @GetMapping("/stat/me")
     public ResponseEntity<ApiResponse<RoutineStatReadResponseDto>> getRoutineStat(
-            @ParameterObject @ModelAttribute RoutineStatReadRequestDto requestDto) {
+            @ParameterObject @ModelAttribute RoutineReadRequestDto requestDto) {
         return ResponseEntity.ok().body(ApiResponse.success(routineService.getRoutineStat(requestDto)));
+    }
+
+    @GetMapping("/report/me")
+    public ResponseEntity<ApiResponse<RoutineReportReadResponseDto>> getRoutineReport(
+            @ParameterObject @ModelAttribute RoutineReadRequestDto requestDto) {
+        return ResponseEntity.ok().body(ApiResponse.success(routineService.getRoutineReport(requestDto)));
     }
 }

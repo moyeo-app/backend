@@ -32,9 +32,9 @@ public class StudyBatchScheduler {
 
         try {
             jobLauncher.run(studyCalendarJob, jobParameters);
-            log.info("[Batch] 총 공부 시간/주간 학습 집계 업데이트 스케줄러 작동 date = {}", target);
+            log.info("[Batch] 총 공부 시간/주간 학습 집계/루틴 리포트 업데이트 스케줄러 작동 date = {}", target);
         } catch (Exception e) {
-            log.error("[Batch] 총 공부 시간/주간 학습 집계 업데이트 스케줄러 작동 실패 date = {}", target, e);
+            log.error("[Batch] 총 공부 시간/주간 학습 집계/루틴 리포트 스케줄러 작동 실패 date = {}", target, e);
         }
     }
 }

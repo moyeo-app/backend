@@ -56,7 +56,12 @@ public enum ErrorCode implements ResponseCode {
     CHALLENGE_LOG_NOT_FOUND(HttpStatus.NOT_FOUND, "챌린지 인증 정보를 찾을 수 없습니다."),
     CONTENT_KEYWORDS_NOT_FOUND(HttpStatus.BAD_REQUEST, "내용에 모든 키워드가 포함되어 있지 않습니다."),
     CHALLENGE_LOG_DATE_MISMATCH(HttpStatus.BAD_REQUEST, "챌린지 인증 날짜가 일치하지 않습니다."),
-    CHALLENGE_LOG_CONTENT_TYPE_MISMATCH(HttpStatus.BAD_REQUEST, "챌린지 인증 내용 타입이 일치하지 않습니다.");
+    CHALLENGE_LOG_CONTENT_TYPE_MISMATCH(HttpStatus.BAD_REQUEST, "챌린지 인증 내용 타입이 일치하지 않습니다."),
+
+    // Routine
+    // AI
+    AI_BAD_RESPONSE(HttpStatus.BAD_REQUEST, "AI 응답 결과가 비어있거나, 필수 필드가 누락되었습니다."),
+    AI_API_CALL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AI API 호출에 실패했습니다.");
 
     private final HttpStatus status;
     private final String message;

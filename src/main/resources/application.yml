@@ -75,6 +75,13 @@ oauth:
       token-uri: https://oauth2.googleapis.com/token
       user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
 
+ai:
+  gemini:
+    name: GEMINI
+    base-url: https://generativelanguage.googleapis.com
+    model: gemini-2.5-flash
+    key: ${GEMINI_API_KEY}
+
 management:
   endpoints:
     web:
