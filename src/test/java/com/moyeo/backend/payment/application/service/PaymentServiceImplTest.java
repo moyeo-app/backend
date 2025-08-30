@@ -7,6 +7,7 @@ import com.moyeo.backend.payment.application.dto.PaymentRequestDto;
 import com.moyeo.backend.payment.application.dto.PaymentResponseDto;
 import com.moyeo.backend.payment.application.mapper.PaymentMapper;
 import com.moyeo.backend.payment.application.mapper.PaymentMapperImpl;
+import com.moyeo.backend.payment.application.validator.PaymentValidator;
 import com.moyeo.backend.payment.domain.PaymentHistory;
 import com.moyeo.backend.payment.domain.PaymentMethod;
 import com.moyeo.backend.payment.domain.PaymentRepository;
@@ -40,6 +41,9 @@ class PaymentServiceImplTest {
 
     @Mock
     private PaymentRepository paymentRepository;
+
+    @Mock
+    private PaymentValidator paymentValidator;
 
     @Spy
     private PaymentMapper paymentMapper = new PaymentMapperImpl();
@@ -77,8 +81,6 @@ class PaymentServiceImplTest {
         PaymentRequestDto requestDto = settingPayment(paymentKey, orderId);
 
         when(userContextService.getCurrentUser()).thenReturn(user);
-        when(paymentRepository.findByPaymentKeyAndIsDeletedFalse(paymentKey)).thenReturn(Optional.empty());
-
         // when
         PaymentResponseDto responseDto = paymentService.create(requestDto);
 
@@ -96,8 +98,9 @@ class PaymentServiceImplTest {
         PaymentRequestDto requestDto = settingPayment(paymentKey, orderId);
 
         when(userContextService.getCurrentUser()).thenReturn(user);
-        when(paymentRepository.findByPaymentKeyAndIsDeletedFalse(paymentKey))
-                .thenReturn(Optional.of(mock(PaymentHistory.class)));
+        doThrow(new CustomException(ErrorCode.PAYMENT_ALREADY_EXISTS))
+                .when(paymentValidator)
+                .validateNotExistsByPaymentKey(paymentKey);
 
         // when & then
         CustomException ex = assertThrows(CustomException.class, () -> {
@@ -115,6 +118,9 @@ class PaymentServiceImplTest {
         PaymentRequestDto requestDto = settingPayment(paymentKey, orderId);
 
         when(userContextService.getCurrentUser()).thenReturn(user);
+        doThrow(new CustomException(ErrorCode.UNAUTHORIZED))
+                .when(paymentValidator)
+                .validateOrderOwnership("USER-UUID-1", orderId);
 
         // when & then
         CustomException ex = assertThrows(CustomException.class, () -> {
