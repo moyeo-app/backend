@@ -24,6 +24,7 @@ import org.springframework.web.client.RestTemplate;
 public class GeminiClient extends AbstractAiClient {
 
     private final ObjectMapper objectMapper;
+    private final RestTemplate restTemplate;
 
     @Value("${ai.gemini.base-url}")
     private String baseUrl;
@@ -46,11 +47,15 @@ public class GeminiClient extends AbstractAiClient {
         HttpEntity<ObjectNode> entity = new HttpEntity<>(body, headers);
 
         try {
-            ResponseEntity<String> response = new RestTemplate().postForEntity(
+            ResponseEntity<String> response = restTemplate.postForEntity(
                     URL,
                     entity,
                     String.class
             );
+            if (response.getBody() == null) {
+                log.error("Gemini 응답 비어있음");
+                throw new CustomException(ErrorCode.AI_BAD_RESPONSE);
+            }
             log.info("Gemini 전체 응답: {}", response.getBody());
             JsonNode node = objectMapper.readTree(response.getBody());
 
@@ -59,7 +64,7 @@ public class GeminiClient extends AbstractAiClient {
                     .path(0).path("text").asText();
 
             if (json == null || json.isBlank()) {
-                log.error("Gemini 응답 비어있음");
+                log.error("Gemini 응답 candidates 비어있음");
                 throw new CustomException(ErrorCode.AI_BAD_RESPONSE);
             }
 

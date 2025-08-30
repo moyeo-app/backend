@@ -1,4 +1,4 @@
-package com.moyeo.backend.routine.infrastructure;
+package com.moyeo.backend.routine.infrastructure.repository;
 
 import com.moyeo.backend.routine.domain.RoutineReport;
 import com.moyeo.backend.routine.domain.RoutineReportRepository;

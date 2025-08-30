@@ -12,6 +12,7 @@ import com.moyeo.backend.study.domain.StudyCalendarRepository;
 import com.moyeo.backend.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +36,12 @@ public class RoutineServiceImpl implements RoutineService {
     private final StudyCalendarRepository studyCalendarRepository;
     private final AiClient aiClient;
     private final RoutineReportRepository routineReportRepository;
+
+    @Value("${ai.gemini.name}")
+    private String aiName;
+
+    @Value("${ai.gemini.model}")
+    private String aiModel;
 
     @Override
     @Transactional
@@ -83,8 +90,8 @@ public class RoutineServiceImpl implements RoutineService {
                 RoutineReport report = RoutineReport.builder()
                         .user(stat.getUser())
                         .startDate(stat.getStartDate())
-                        .provider("GEMINI")
-                        .model("gemini-2.5-flash")
+                        .provider(aiName)
+                        .model(aiModel)
                         .report(response)
                         .build();
                 reports.add(report);
@@ -92,12 +99,11 @@ public class RoutineServiceImpl implements RoutineService {
                 log.warn("루틴 리포트 생성 실패, userId = {}, weekStart = {}",
                         stat.getUser().getId(), monday, e);
             }
-
-            if (!reports.isEmpty()) {
-                routineReportRepository.upsertAll(reports);
-                log.info("루틴 리포트 업데이트 완료: {} 건 (실패 {} 건), weekStart = {}",
-                        reports.size(), list.size() - reports.size(), monday);
-            }
+        }
+        if (!reports.isEmpty()) {
+            routineReportRepository.upsertAll(reports);
+            log.info("루틴 리포트 업데이트 완료: {} 건 (실패 {} 건), weekStart = {}",
+                    reports.size(), list.size() - reports.size(), monday);
         }
     }
 

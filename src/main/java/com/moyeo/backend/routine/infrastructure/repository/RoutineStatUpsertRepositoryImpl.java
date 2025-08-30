@@ -1,7 +1,7 @@
-package com.moyeo.backend.routine.infrastructure;
+package com.moyeo.backend.routine.infrastructure.repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moyeo.backend.routine.domain.RoutineReport;
+import com.moyeo.backend.routine.application.dto.RoutineStatReadResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.AuditorAware;
@@ -15,59 +15,69 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@Slf4j(topic = "RoutineReportUpsertRepositoryImpl")
+@Slf4j(topic = "RoutineStatUpsertRepositoryImpl")
 @RequiredArgsConstructor
-public class RoutineReportUpsertRepositoryImpl implements RoutineReportUpsertRepository {
-    
+public class RoutineStatUpsertRepositoryImpl implements RoutineStatUpsertRepository {
+
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final AuditorAware<String> auditorAware;
     private final ObjectMapper objectMapper;
 
     private static final int BATCH_SIZE = 500;
     private static final String SQL = """
-        INSERT INTO routine_report (
+        INSERT INTO routine_stat (
             id,
             user_id, start_date,
-            provider, model, report,
+            total_minutes, avg_minutes,
+            focus_day, least_day, high_attendance_days,
             created_at, created_by, updated_at, updated_by, is_deleted
         )
         VALUES (
             :id,
             :userId, :startDate,
-            :provider, :model, CAST(:report AS jsonb),
+            :totalMinutes, :avgMinutes,
+            :focusDay, :leastDay, CAST(:highAttendanceJson AS jsonb),
             :now, :actor, :now, :actor, false
         )
         ON CONFLICT (user_id, start_date)
         DO UPDATE SET
-            provider = EXCLUDED.provider,
-            model   = EXCLUDED.model,
-            report     = EXCLUDED.report,
+            total_minutes = EXCLUDED.total_minutes,
+            avg_minutes   = EXCLUDED.avg_minutes,
+            focus_day     = EXCLUDED.focus_day,
+            least_day     = EXCLUDED.least_day,
+            high_attendance_days = EXCLUDED.high_attendance_days,
             updated_at    = EXCLUDED.updated_at,
             updated_by    = EXCLUDED.updated_by,
             is_deleted    = false
         """;
-    
+
     @Override
-    public void upsertAll(ArrayList<RoutineReport> reports) {
+    public void upsertAll(List<RoutineStatReadResponseDto> stats) {
         final String actor = auditorAware.getCurrentAuditor().orElse("SYSTEM");
         final LocalDateTime now =  LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 
         List<SqlParameterSource> buffer = new ArrayList<>(BATCH_SIZE);
-        for (RoutineReport r : reports) {
-            String reportJson;
+
+        for (RoutineStatReadResponseDto r : stats) {
+            String highJson;
             try {
-                reportJson = objectMapper.writeValueAsString(r.getReport());
+                highJson = objectMapper.writeValueAsString(
+                        r.highAttendanceDays().stream().map(Enum::name).toList()
+                );
             } catch (Exception e) {
-                log.warn("Report 직렬화 실패, userId={}, startDate={}", r.getUser().getId(), r.getStartDate(), e);
-                continue;
+                highJson = "[]";
+                log.warn("출석률 높은 요일 직렬화 실패, userId={}, startDate={}, e=[]", r.userId(), r.startDate(), e);
             }
+
             buffer.add(new MapSqlParameterSource()
                     .addValue("id", UUID.randomUUID())
-                    .addValue("userId", r.getUser().getId())
-                    .addValue("startDate", r.getStartDate())
-                    .addValue("provider", r.getProvider())
-                    .addValue("model", r.getModel())
-                    .addValue("report", reportJson)
+                    .addValue("userId", r.userId())
+                    .addValue("startDate", r.startDate())
+                    .addValue("totalMinutes", r.totalMinutes())
+                    .addValue("avgMinutes", r.avgMinutes())
+                    .addValue("focusDay", r.focusDay().name())
+                    .addValue("leastDay", r.leastDay().name())
+                    .addValue("highAttendanceJson", highJson)
                     .addValue("actor", actor)
                     .addValue("now", now)
             );
