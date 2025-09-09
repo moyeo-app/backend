@@ -66,7 +66,9 @@ public class WebSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:8081", "https://moyeo-two.vercel.app/"));
+        config.setAllowedOrigins(List.of("http://localhost:8081", "https://moyeo-two.vercel.app"));
+        config.setAllowedOriginPatterns(List.of("https://*.trycloudflare.com"));
+
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
