@@ -7,14 +7,15 @@ services:
   redis:
     image: redis:latest
     container_name: moyeo-redis
+    command: redis-server --notify-keyspace-events Ex
     ports:
       - "${REDIS_PORT}:6379"
-    command: redis-server --notify-keyspace-events Ex
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
     networks: [moyeo-net]
 
   zookeeper:
@@ -24,11 +25,7 @@ services:
       ZOOKEEPER_CLIENT_PORT: ${ZOOKEEPER_PORT}
     ports:
       - "${ZOOKEEPER_PORT}:2181"
-    healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "${ZOOKEEPER_PORT}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    restart: unless-stopped
     networks: [moyeo-net]
 
   kafka:
@@ -36,43 +33,48 @@ services:
     container_name: moyeo-kafka
     ports:
       - "${KAFKA_PORT}:9092"
-      - "${KAFKA_PORT_DOCKER}:29092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:${ZOOKEEPER_PORT}
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://${KAFKA_ADVERTISED_HOST}:${KAFKA_PORT_DOCKER}
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      # 프리티어 튜닝
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    depends_on:
-      zookeeper:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "9092"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_MIN_INSYNC_REPLICAS: 1
+      KAFKA_NUM_PARTITIONS: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_HEAP_OPTS: "-Xms384m -Xmx384m"
+      KAFKA_LOG_RETENTION_HOURS: 48
+    restart: unless-stopped
     networks: [moyeo-net]
 
   backend:
-    build: .
+    image: eclipse-temurin:17-jre
     container_name: moyeo-backend
+    working_dir: /app
+    volumes:
+      - /opt/moyeo/app/app.jar:/app/app.jar:ro
+    command: ["java","-jar","/app/app.jar"]
     ports:
       - "${SERVER_PORT}:8080"
     depends_on:
-      db:
-        condition: service_healthy
       kafka:
-        condition: service_healthy
+        condition: service_started
       redis:
         condition: service_healthy
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+      # ---- RDS 연결 ----
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
+      # ---- App/Infra ----
       - SERVER_PORT=${SERVER_PORT}
       - JWT_SECRET=${JWT_SECRET}
       - KAKAO_CLIENT_ID=${KAKAO_CLIENT_ID}
@@ -80,9 +82,14 @@ services:
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
       - LOKI_PUSH_URL=${LOKI_PUSH_URL}
+      # ---- 내부 서비스 ----
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
       - KAFKA_BROKER=kafka:${KAFKA_PORT}
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_WEB_CONTEXT_REQUEST_ASYNC=WARN
+      - LOGGING_LEVEL_ORG_APACHE_CATALINA_CONNECTOR=WARN
+      - LOGGING_LEVEL_ORG_APACHE_COYOTE_HTTP11=WARN
+    restart: unless-stopped
     networks: [moyeo-net]
