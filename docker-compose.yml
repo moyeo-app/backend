@@ -1,19 +1,9 @@
-services:
-  db:
-    image: postgres:15
-    container_name: moyeo-db
-    environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - "${DB_PORT}:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+name: moyeo-app
+networks:
+  moyeo-net:
+    external: true
 
+services:
   redis:
     image: redis:latest
     container_name: moyeo-redis
@@ -25,17 +15,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
-  redis-exporter:
-    image: oliver006/redis_exporter
-    container_name: moyeo-redis-exporter
-    ports:
-      - "${REDIS_EXPORTER_PORT}:9121"
-    environment:
-      - REDIS_ADDR=redis://redis:6379
-    depends_on:
-      redis:
-        condition: service_healthy
+    networks: [moyeo-net]
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
@@ -49,6 +29,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks: [moyeo-net]
 
   kafka:
     image: confluentinc/cp-kafka:7.5.1
@@ -71,63 +52,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-
-  kafka-ui:
-    image: provectuslabs/kafka-ui:latest
-    container_name: moyeo-kafka-ui
-    depends_on:
-      kafka:
-        condition: service_healthy
-    ports:
-      - "${KAFKA_UI_PORT}:8080"
-    environment:
-      KAFKA_CLUSTERS_0_NAME: local
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
-      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:${ZOOKEEPER_PORT}
-
-  kafka-exporter:
-    image: danielqsj/kafka-exporter:latest
-    container_name: moyeo-kafka-exporter
-    ports:
-      - "${KAFKA_EXPORTER_PORT}:9308"
-    command:
-      - "--kafka.server=kafka:${KAFKA_PORT}"
-    depends_on:
-      kafka:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "nc", "-z", "kafka", "${KAFKA_PORT}"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: moyeo-prometheus
-    ports:
-      - "${PROMETHEUS_PORT}:9090"
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus-data:/prometheus
-
-  grafana:
-    image: grafana/grafana:latest
-    container_name: moyeo-grafana
-    ports:
-      - "${GRAFANA_PORT}:3000"
-    depends_on:
-      - prometheus
-    volumes:
-      - grafana-data:/var/lib/grafana
-
-  loki:
-    image: grafana/loki:2.9.8
-    container_name: moyeo-loki
-    ports:
-      - "${LOKI_PORT}:3100"
-    command: -config.file=/mnt/config/loki-config.yml
-    volumes:
-      - ./loki-config.yml:/mnt/config/loki-config.yml
+    networks: [moyeo-net]
 
   backend:
     build: .
@@ -142,8 +67,8 @@ services:
       redis:
         condition: service_healthy
     environment:
-      - SPRING_PROFILES_ACTIVE=local
-      - DB_HOST=db
+      - SPRING_PROFILES_ACTIVE=prod
+      - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
@@ -160,7 +85,4 @@ services:
       - REDIS_PORT=${REDIS_PORT}
       - KAFKA_BROKER=kafka:${KAFKA_PORT}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
-
-volumes:
-  grafana-data:
-  prometheus-data:
+    networks: [moyeo-net]
