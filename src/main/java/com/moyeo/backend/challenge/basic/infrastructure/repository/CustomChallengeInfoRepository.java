@@ -5,7 +5,11 @@ import com.moyeo.backend.challenge.basic.application.dto.ChallengeReadResponseDt
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
+
 public interface CustomChallengeInfoRepository {
 
     Page<ChallengeReadResponseDto> searchChallenges(ChallengeReadRequestDto requestDto, Pageable pageable);
+
+    void updateStatus(LocalDate date);
 }

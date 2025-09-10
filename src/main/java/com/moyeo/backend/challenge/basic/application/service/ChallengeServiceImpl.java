@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Slf4j(topic = "ChallengeService")
@@ -101,5 +102,12 @@ public class ChallengeServiceImpl implements ChallengeService {
 
         Page<ChallengeReadResponseDto> challenges = challengeInfoRepository.searchChallenges(requestDto, pageable);
         return pageMapper.toPageResponse(challenges);
+    }
+
+    @Override
+    @Transactional
+    public void updateStatus(LocalDate date) {
+        challengeInfoRepository.updateStatus(date);
+        log.info("챌린지 상태 업데이트 완료, date = {}", date);
     }
 }

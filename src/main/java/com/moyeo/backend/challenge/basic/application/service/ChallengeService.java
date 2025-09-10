@@ -7,6 +7,8 @@ import com.moyeo.backend.challenge.basic.application.dto.ChallengeResponseDto;
 import com.moyeo.backend.common.response.PageResponse;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
+
 public interface ChallengeService {
 
     ChallengeResponseDto create(ChallengeCreateRequestDto requestDto);
@@ -14,4 +16,6 @@ public interface ChallengeService {
     ChallengeReadResponseDto getById(String id);
 
     PageResponse<ChallengeReadResponseDto> gets(ChallengeReadRequestDto requestDto, Pageable pageable);
+
+    void updateStatus(LocalDate date);
 }

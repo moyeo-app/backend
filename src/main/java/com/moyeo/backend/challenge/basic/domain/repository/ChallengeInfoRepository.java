@@ -6,6 +6,7 @@ import com.moyeo.backend.challenge.basic.domain.Challenge;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 public interface ChallengeInfoRepository {
@@ -15,4 +16,6 @@ public interface ChallengeInfoRepository {
     Page<ChallengeReadResponseDto> searchChallenges(ChallengeReadRequestDto requestDto, Pageable pageable);
 
     Challenge save(Challenge challenge);
+
+    void updateStatus(LocalDate date);
 }
