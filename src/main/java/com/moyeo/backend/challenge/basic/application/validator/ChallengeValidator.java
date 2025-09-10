@@ -8,12 +8,14 @@ import com.moyeo.backend.challenge.basic.domain.repository.ChallengeInfoReposito
 import com.moyeo.backend.common.enums.ErrorCode;
 import com.moyeo.backend.common.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 
+@Slf4j(topic = "ChallengeValidator")
 @Component
 @RequiredArgsConstructor
 public class ChallengeValidator {
@@ -32,9 +34,19 @@ public class ChallengeValidator {
         }
     }
 
-    public Challenge getValidContentChallengeById(String challengeId) {
+    // 내용 타입 + 날짜 유효성 검사
+    public Challenge getValidDateAndContentChallengeById(String challengeId) {
         Challenge challenge = challengeInfoRepository.findByIdAndIsDeletedFalse(challengeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHALLENGE_NOT_FOUND));
+
+        LocalDate now = LocalDate.now(ZoneId.of("Asia/Seoul"));
+        LocalDate startDate = challenge.getStartDate();
+
+        log.info("오늘 = {}, 챌린지 시작 날짜 = {}", now, startDate);
+
+        if (now.isBefore(startDate)) {
+            throw new CustomException(ErrorCode.CHALLENGE_NOT_IN_TIME);
+        }
 
         if (challenge.getType() != ChallengeType.CONTENT) {
             throw new CustomException(ErrorCode.CHALLENGE_TYPE_MISMATCH);
@@ -43,9 +55,9 @@ public class ChallengeValidator {
         return challenge;
     }
 
-    // 내용 타입 + 키워드 입력 시간 유효성 검사
+    // 키워드 입력 시간 유효성 검사
     public Challenge getValidContentChallengeByIdAndInTime(String challengeId) {
-        Challenge challenge = getValidContentChallengeById(challengeId);
+        Challenge challenge = getValidDateAndContentChallengeById(challengeId);
 
         ChallengeOption option = challenge.getOption();
         if (option instanceof StartEndOption startEndOption) {

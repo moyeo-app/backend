@@ -2,7 +2,6 @@ package com.moyeo.backend.challenge.participation.application.validator;
 
 import com.moyeo.backend.challenge.participation.domain.ChallengeParticipation;
 import com.moyeo.backend.challenge.participation.domain.ChallengeParticipationRepository;
-import com.moyeo.backend.challenge.participation.infrastructure.repository.JpaChallengeParticipationRepository;
 import com.moyeo.backend.common.enums.ErrorCode;
 import com.moyeo.backend.common.exception.CustomException;
 import lombok.RequiredArgsConstructor;
