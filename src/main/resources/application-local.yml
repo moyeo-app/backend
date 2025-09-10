@@ -11,7 +11,7 @@ spring:
       ddl-auto: update
     show-sql: true
     properties:
-      dialect: org.hibernate.dialect.PostgreSQLDialect
       hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
         use_sql_comments: true
