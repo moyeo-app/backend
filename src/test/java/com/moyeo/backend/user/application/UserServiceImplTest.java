@@ -12,6 +12,7 @@ import com.moyeo.backend.user.application.dto.UserResponseDto;
 import com.moyeo.backend.user.application.mapper.UserMapper;
 import com.moyeo.backend.user.application.mapper.UserMapperImpl;
 import com.moyeo.backend.user.application.service.UserServiceImpl;
+import com.moyeo.backend.user.application.validator.UserValidator;
 import com.moyeo.backend.user.domain.Bank;
 import com.moyeo.backend.user.domain.Character;
 import com.moyeo.backend.user.domain.User;
@@ -28,8 +29,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
@@ -42,6 +42,9 @@ class UserServiceImplTest {
 
     @Mock
     private OauthRepository oauthRepository;
+
+    @Mock
+    private UserValidator userValidator;
 
     @Spy
     private UserMapper userMapper = new UserMapperImpl();
@@ -62,8 +65,6 @@ class UserServiceImplTest {
                 .accountNumber("812702-02-442698")
                 .build();
 
-        when(userRepository.findByNicknameAndIsDeletedFalse("코딩짱짱맨")).thenReturn(Optional.empty());
-
         // when
         UserResponseDto responseDto = userService.register(requestDto);
 
@@ -83,7 +84,10 @@ class UserServiceImplTest {
                 .nickname("코딩짱짱맨")
                 .character(Character.BEAR)
                 .build();
-        when(userRepository.findByNicknameAndIsDeletedFalse("코딩짱짱맨")).thenReturn(Optional.of(User.builder().nickname("코딩짱짱맨").build()));
+
+        doThrow(new CustomException(ErrorCode.NICKNAME_ALREADY_EXISTS))
+                .when(userValidator)
+                .validateNickname("코딩짱짱맨");
 
         // when & then
         CustomException ex = assertThrows(CustomException.class, () -> {

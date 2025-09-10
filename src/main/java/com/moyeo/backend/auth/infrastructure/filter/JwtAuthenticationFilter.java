@@ -32,9 +32,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final UserRepository userRepository;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+
+        final String path = request.getServletPath();
+        log.info("요청 URI: {}", path);
+
+        if (path != null && (path.startsWith("/actuator")
+                || path.startsWith("/swagger-ui")
+                || path.startsWith("/v3/api-docs")
+                || path.startsWith("/api-docs"))) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String token = jwtUtil.getJwtFromHeader(request);
-        log.info("요청 URI: {}", request.getRequestURI());
         log.info("JWT 토큰 입력 : {}", token);
 
         if (StringUtils.hasText(token)) {
@@ -65,10 +77,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private void setErrorResponse(HttpServletResponse response, ErrorCode errorCode) throws IOException {
+        if (response.isCommitted()) return;
         response.setStatus(errorCode.getStatus().value());
         response.setContentType("application/json; charset=UTF-8");
-        response.getWriter().write(
-                new ObjectMapper().writeValueAsString(ApiResponse.fail(errorCode))
-        );
+        response.getWriter().write(new ObjectMapper().writeValueAsString(ApiResponse.fail(errorCode)));
     }
 }

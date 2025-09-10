@@ -2,7 +2,8 @@
 application-debug.yml
 
 # env
-.env
+.env.app
+.env.obs
 
 # Gradle
 .gradle/
