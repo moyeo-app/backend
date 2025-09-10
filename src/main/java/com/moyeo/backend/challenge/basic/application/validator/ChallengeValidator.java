@@ -5,7 +5,6 @@ import com.moyeo.backend.challenge.basic.domain.ChallengeOption;
 import com.moyeo.backend.challenge.basic.domain.StartEndOption;
 import com.moyeo.backend.challenge.basic.domain.enums.ChallengeType;
 import com.moyeo.backend.challenge.basic.domain.repository.ChallengeInfoRepository;
-import com.moyeo.backend.challenge.basic.infrastructure.repository.JpaChallengeInfoRepository;
 import com.moyeo.backend.common.enums.ErrorCode;
 import com.moyeo.backend.common.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +27,7 @@ public class ChallengeValidator {
 
     // 시작일 유효성 검사
     public void validateChallengeStartDate(LocalDate startDate) {
-        if (startDate.isBefore(LocalDate.now())) {
+        if (startDate.isBefore(LocalDate.now().plusDays(1))) {
             throw new CustomException(ErrorCode.INVALID_DATE);
         }
     }
