@@ -5,17 +5,21 @@ import com.moyeo.backend.challenge.participation.application.dto.ChallengePartic
 import com.moyeo.backend.challenge.participation.application.dto.ChallengeParticipationReadResponseDto;
 import com.moyeo.backend.challenge.participation.application.mapper.ChallengeParticipationMapper;
 import com.moyeo.backend.challenge.participation.domain.ChallengeParticipation;
+import com.moyeo.backend.challenge.participation.domain.enums.ParticipationStatus;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.ComparableExpressionBase;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -23,10 +27,12 @@ import static com.moyeo.backend.challenge.basic.domain.QChallenge.challenge;
 import static com.moyeo.backend.challenge.participation.domain.QChallengeParticipation.challengeParticipation;
 import static com.moyeo.backend.common.util.QueryDslSortUtil.getOrderSpecifiers;
 
+@Slf4j(topic = "CustomChallengeParticipationRepository")
 @RequiredArgsConstructor
 public class CustomChallengeParticipationRepositoryImpl implements CustomChallengeParticipationRepository{
 
     private final JPAQueryFactory jpaQueryFactory;
+    private final EntityManager entityManager;
     private final ChallengeParticipationMapper participationMapper;
 
     private static final Map<String, ComparableExpressionBase<?>> SORT_PARAMS = Map.of(
@@ -63,6 +69,33 @@ public class CustomChallengeParticipationRepositoryImpl implements CustomChallen
         );
     }
 
+    @Override
+    public void updateStatus(LocalDate date) {
+
+        long toInProgress = jpaQueryFactory
+                .update(challengeParticipation)
+                .set(challengeParticipation.status, ParticipationStatus.INPROGRESS)
+                .set(challengeParticipation.updatedAt, LocalDateTime.now())
+                .where(isDeletedFalse()
+                                .and(challengeParticipation.status.isNull())
+                                .and(challengeParticipation.challenge.startDate.loe(date)))
+                .execute();
+
+        long toEnd = jpaQueryFactory
+                .update(challengeParticipation)
+                .set(challengeParticipation.status, ParticipationStatus.END)
+                .set(challengeParticipation.updatedAt, LocalDateTime.now())
+                .where(isDeletedFalse()
+                                .and(challengeParticipation.status.eq(ParticipationStatus.INPROGRESS))
+                                .and(challengeParticipation.challenge.endDate.lt(date)))
+                .execute();
+
+        entityManager.flush();
+        entityManager.clear();
+
+        log.info("[Batch:Update] 챌린지 참여 상태 업데이트 date = {}, toInProgress = {}, toEnd = {}",
+                date, toInProgress, toEnd);
+    }
 
     private BooleanBuilder booleanBuilder(String userId, ChallengeParticipationReadRequestDto requestDto) {
 
@@ -95,6 +128,4 @@ public class CustomChallengeParticipationRepositoryImpl implements CustomChallen
         return challenge.startDate.loe(date)
                 .and(challenge.endDate.goe(date));
     }
-
-
 }

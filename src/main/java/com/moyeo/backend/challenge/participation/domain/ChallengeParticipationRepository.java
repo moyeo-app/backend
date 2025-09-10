@@ -5,6 +5,7 @@ import com.moyeo.backend.challenge.participation.application.dto.ChallengePartic
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 public interface ChallengeParticipationRepository {
@@ -15,4 +16,6 @@ public interface ChallengeParticipationRepository {
     Page<ChallengeParticipationReadResponseDto> findMyParticipation(String userId, ChallengeParticipationReadRequestDto requestDto, Pageable pageable);
 
     boolean existsByChallengeIdAndUserIdAndIsDeletedFalse(String challengeId, String userId);
+
+    void updateStatus(LocalDate date);
 }
