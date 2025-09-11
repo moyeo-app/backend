@@ -27,7 +27,7 @@ docker compose --env-file "$ENV_FILE" up -d --no-deps --force-recreate backend
 # ==== 헬스 체크 (retry with backoff) ====
 HEALTH_URL=${HEALTH_URL:-http://localhost:8080/actuator/health}
 MAX_TRIES=${MAX_TRIES:-15}   # 총 시도 횟수(기본 15회)
-SLEEP_SECS=${SLEEP_SECS:-2}  # 각 시도 간 대기(기본 2초)
+SLEEP_SECS=${SLEEP_SECS:-30}  # 각 시도 간 대기(기본 30초)
 
 echo "Waiting for health: $HEALTH_URL"
 ok=0
