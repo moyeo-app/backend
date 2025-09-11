@@ -49,7 +49,10 @@ public class RoutineServiceImpl implements RoutineService {
         LocalDate monday = weekEndDate.with(DayOfWeek.MONDAY);
 
         List<WeeklyAgg> list = studyCalendarRepository.findWeeklyAgg(monday, weekEndDate);
-        if (list.isEmpty()) return;
+        if (list.isEmpty()) {
+            log.info("주간 집계 데이터 없음, 주간 학습 통계 진행 안함, weekStart = {}", monday);
+            return;
+        }
 
         List<RoutineStatReadResponseDto> stats = list.stream()
                 .map(this::computeWeeklyAgg)
@@ -147,6 +150,7 @@ public class RoutineServiceImpl implements RoutineService {
                 .startDate(agg.startDate())
                 .totalMinutes(agg.totalMinutes())
                 .avgMinutes(agg.avgMinutes())
+                .activeDays(agg.activeDays())
                 .focusDay(focusDay)
                 .leastDay(leastDay)
                 .highAttendanceDays(highAttendanceDays)

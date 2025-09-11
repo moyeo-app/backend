@@ -12,4 +12,6 @@ public interface CustomChallengeParticipationRepository {
     Page<ChallengeParticipationReadResponseDto> findMyParticipation(String userId, ChallengeParticipationReadRequestDto requestDto, Pageable pageable);
 
     void updateStatus(LocalDate date);
+
+    void updateWeeklyStatus(LocalDate date);
 }

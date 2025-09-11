@@ -17,4 +17,6 @@ public interface ChallengeParticipationService {
     PageResponse<ChallengeParticipationReadResponseDto> gets(ChallengeParticipationReadRequestDto requestDto, Pageable pageable);
 
     void updateStatus(LocalDate date);
+
+    void updateWeeklyStatus(LocalDate date);
 }

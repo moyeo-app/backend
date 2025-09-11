@@ -28,14 +28,14 @@ public class RoutineStatUpsertRepositoryImpl implements RoutineStatUpsertReposit
         INSERT INTO routine_stat (
             id,
             user_id, start_date,
-            total_minutes, avg_minutes,
+            total_minutes, avg_minutes, active_days,
             focus_day, least_day, high_attendance_days,
             created_at, created_by, updated_at, updated_by, is_deleted
         )
         VALUES (
             :id,
             :userId, :startDate,
-            :totalMinutes, :avgMinutes,
+            :totalMinutes, :avgMinutes, :activeDays,
             :focusDay, :leastDay, CAST(:highAttendanceJson AS jsonb),
             :now, :actor, :now, :actor, false
         )
@@ -43,6 +43,7 @@ public class RoutineStatUpsertRepositoryImpl implements RoutineStatUpsertReposit
         DO UPDATE SET
             total_minutes = EXCLUDED.total_minutes,
             avg_minutes   = EXCLUDED.avg_minutes,
+            active_days   = EXCLUDED.active_days,
             focus_day     = EXCLUDED.focus_day,
             least_day     = EXCLUDED.least_day,
             high_attendance_days = EXCLUDED.high_attendance_days,
@@ -75,6 +76,7 @@ public class RoutineStatUpsertRepositoryImpl implements RoutineStatUpsertReposit
                     .addValue("startDate", r.startDate())
                     .addValue("totalMinutes", r.totalMinutes())
                     .addValue("avgMinutes", r.avgMinutes())
+                    .addValue("activeDays", r.activeDays())
                     .addValue("focusDay", r.focusDay().name())
                     .addValue("leastDay", r.leastDay().name())
                     .addValue("highAttendanceJson", highJson)

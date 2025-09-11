@@ -96,7 +96,14 @@ public class ChallengeParticipationServiceImpl implements ChallengeParticipation
     @Transactional
     public void updateStatus(LocalDate date) {
         participationRepository.updateStatus(date);
-        log.info("챌린지 상태 업데이트 완료, date = {}", date);
+        log.info("챌린지 참여 상태 업데이트 완료, date = {}", date);
+    }
+
+    @Override
+    @Transactional
+    public void updateWeeklyStatus(LocalDate date) {
+        participationRepository.updateWeeklyStatus(date);
+        log.info("주간 챌린지 참여 인증 상태 업데이트 완료, date = {}", date);
     }
 
     private void reserveSlotOrFail(String challengeId, Challenge challenge, String userId) {

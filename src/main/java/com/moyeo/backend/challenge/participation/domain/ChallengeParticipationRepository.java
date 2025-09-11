@@ -18,4 +18,6 @@ public interface ChallengeParticipationRepository {
     boolean existsByChallengeIdAndUserIdAndIsDeletedFalse(String challengeId, String userId);
 
     void updateStatus(LocalDate date);
+
+    void updateWeeklyStatus(LocalDate date);
 }
