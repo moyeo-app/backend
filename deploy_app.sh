@@ -24,12 +24,28 @@ mv /tmp/app.jar "$APP_DIR/app.jar"
 # 백엔드만 재기동
 docker compose --env-file "$ENV_FILE" up -d --no-deps --force-recreate backend
 
-# 헬스 체크
-sleep 2
-if ! curl -fsS -m 5 http://localhost:8080/actuator/health >/dev/null; then
+# ==== 헬스 체크 (retry with backoff) ====
+HEALTH_URL=${HEALTH_URL:-http://localhost:8080/actuator/health}
+MAX_TRIES=${MAX_TRIES:-15}   # 총 시도 횟수(기본 15회)
+SLEEP_SECS=${SLEEP_SECS:-2}  # 각 시도 간 대기(기본 2초)
+
+echo "Waiting for health: $HEALTH_URL"
+ok=0
+for i in $(seq 1 "$MAX_TRIES"); do
+  if curl -sS -m 5 "$HEALTH_URL" | grep -q '"status"\s*:\s*"UP"'; then
+    echo "Health is UP"
+    ok=1
+    break
+  fi
+  echo "[$i/$MAX_TRIES] not ready yet... retrying in ${SLEEP_SECS}s"
+  sleep "$SLEEP_SECS"
+done
+
+if [[ "${ok:-0}" -ne 1 ]]; then
   echo "Health check failed; printing last 100 lines:"
-  docker logs --tail=100 moyeo-backend
+  docker logs --tail=100 moyeo-backend || true
   exit 1
 fi
+# ==== 헬스 체크 끝 ====
 
 echo "Deploy OK"

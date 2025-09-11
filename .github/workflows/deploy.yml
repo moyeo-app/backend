@@ -64,22 +64,22 @@ jobs:
           echo "${{ secrets.SSH_KEY }}" > key.pem
           chmod 600 key.pem
           mkdir -p ~/.ssh
-          ssh-keyscan -p "${{ secrets.SSH_PORT || 22 }}" "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
+          PORT="${{ secrets.SSH_PORT }}"; PORT=${PORT:-22}
+          ssh-keyscan -p "$PORT" "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
 
       - name: Copy JAR to EC2 (/tmp/app.jar)
         run: |
-          scp -i key.pem -P "${{ secrets.SSH_PORT || 22 }}" -C \
-            *.jar "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/tmp/app.jar"
+          PORT="${{ secrets.SSH_PORT }}"; PORT=${PORT:-22}
+          scp -i key.pem -P "$PORT" -C \
+            app-jar/*.jar "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/tmp/app.jar"
 
       - name: Push deploy script
         run: |
-          scp -i key.pem -P "${{ secrets.SSH_PORT || 22 }}" -C \
-            backend/deploy_app.sh "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/opt/moyeo/app/deploy_app.sh"
-          ssh -i key.pem -p "${{ secrets.SSH_PORT || 22 }}" \
-            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
-            "chmod +x /opt/moyeo/app/deploy_app.sh"
-          
+          PORT="${{ secrets.SSH_PORT }}"; PORT=${PORT:-22}
+          scp -i key.pem -P "$PORT" -C \
+            deploy_app.sh "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/opt/moyeo/app/deploy_app.sh"
+          ssh -i key.pem -p "$PORT" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" "chmod +x /opt/moyeo/app/deploy_app.sh"
+
       - name: Remote deploy
         run: |
           ssh -i key.pem -p "${{ secrets.SSH_PORT || 22 }}" \
