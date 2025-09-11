@@ -22,11 +22,11 @@ fi
 mv /tmp/app.jar "$APP_DIR/app.jar"
 
 # 백엔드만 재기동
-docker compose --env-file "$ENV_FILE" up -d --no-deps --force-recreate backend
+docker compose --env-file "$ENV_FILE" up -d --no-deps --force-recreate --wait --wait-timeout ${WAIT_TIMEOUT:-1200} backend
 
 # ==== 헬스 체크 ====
 echo "[deploy] waiting for backend health..."
-for i in $(seq 1 120); do
+for i in $(seq 1 50); do
   status=$(docker inspect -f '{{.State.Health.Status}}' moyeo-backend 2>/dev/null || echo starting)
   if [ "$status" = "healthy" ]; then
     echo "[deploy] backend healthy ✅"
@@ -37,14 +37,8 @@ for i in $(seq 1 120); do
   else
     echo "[deploy] backend status: $status (try $i)"
   fi
-  sleep 5
+  sleep 20
 done
-
-if [[ "${ok:-0}" -ne 1 ]]; then
-  echo "Health check failed; printing last 100 lines:"
-  docker logs --tail=100 moyeo-backend || true
-  exit 1
-fi
 # ==== 헬스 체크 끝 ====
 
 echo "Deploy OK"
