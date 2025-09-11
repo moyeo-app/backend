@@ -75,22 +75,24 @@ public class CustomChallengeInfoRepositoryImpl implements CustomChallengeInfoRep
     @Override
     public void updateStatus(LocalDate date) {
 
-        BooleanExpression toInProgressBooleanBuilder = statusBooleanBuilder(date, ChallengeStatus.RECRUITING);
-
         long toInProgress = jpaQueryFactory
                 .update(challenge)
                 .set(challenge.status, ChallengeStatus.INPROGRESS)
                 .set(challenge.updatedAt, LocalDateTime.now(clock))
-                .where(toInProgressBooleanBuilder)
+                .where(isDeletedFalse()
+                        .and(challenge.status.in(ChallengeStatus.RECRUITING, ChallengeStatus.CLOSED))
+                        .and(challenge.startDate.loe(date))
+                )
                 .execute();
-
-        BooleanExpression toEndBooleanBuilder = statusBooleanBuilder(date, ChallengeStatus.INPROGRESS);
 
         long toEnd = jpaQueryFactory
                 .update(challenge)
                 .set(challenge.status, ChallengeStatus.END)
                 .set(challenge.updatedAt, LocalDateTime.now(clock))
-                .where(toEndBooleanBuilder)
+                .where(isDeletedFalse()
+                        .and(challenge.status.eq(ChallengeStatus.INPROGRESS))
+                        .and(challenge.endDate.lt(date))
+                )
                 .execute();
 
         entityManager.flush();
@@ -98,19 +100,6 @@ public class CustomChallengeInfoRepositoryImpl implements CustomChallengeInfoRep
 
         log.info("[Batch:Update] 챌린지 상태 업데이트 date = {}, toInProgress = {}, toEnd = {}",
                 date, toInProgress, toEnd);
-    }
-
-    private BooleanExpression statusBooleanBuilder(LocalDate date, ChallengeStatus status) {
-        BooleanExpression base = isDeletedFalse().and(challenge.status.eq(status));
-
-        if (status == ChallengeStatus.RECRUITING) {
-            return base.and(challenge.startDate.loe(date));
-        }
-        if (status == ChallengeStatus.INPROGRESS) {
-            return base.and(challenge.endDate.lt(date));
-        }
-
-        return Expressions.FALSE.isTrue();
     }
 
     private BooleanBuilder booleanBuilder(ChallengeReadRequestDto requestDto) {
