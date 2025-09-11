@@ -1,0 +1,94 @@
+name: Moyeo Backend CI/CD
+
+on:
+  push:
+    branches: [ "main" ]  # main 브랜치 push 시
+    paths:
+      - "backend/**"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch:
+
+concurrency:  # 중복 실행 방지
+  group: moyeo-deploy
+  cancel-in-progress: true
+
+jobs:
+  build:  # CI: JAR 생성
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Gradle cache
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Build bootJar (no tests)
+        run: ./gradlew clean bootJar -x test
+
+      - name: Find built jar
+        id: findjar
+        run: |
+          JAR=$(ls -1 build/libs/*.jar | head -n1)
+          echo "jar=$JAR" >> $GITHUB_OUTPUT
+
+      - name: Upload artifact (optional)
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: ${{ steps.findjar.outputs.jar }}
+
+  deploy: # 서버 반영
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: app-jar
+          path: .
+
+      - name: Prepare SSH key & known_hosts
+        run: |
+          echo "${{ secrets.SSH_KEY }}" > key.pem
+          chmod 600 key.pem
+          mkdir -p ~/.ssh
+          PORT="${{ secrets.SSH_PORT }}"; PORT=${PORT:-22}
+          ssh-keyscan -p "$PORT" "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Copy JAR to EC2 (/tmp/app.jar)
+        run: |
+          PORT="${{ secrets.SSH_PORT }}"; PORT=${PORT:-22}
+          scp -i key.pem -P "$PORT" -C \
+            app-jar/*.jar "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/tmp/app.jar"
+
+      - name: Push deploy script
+        run: |
+          PORT="${{ secrets.SSH_PORT }}"; PORT=${PORT:-22}
+          scp -i key.pem -P "$PORT" -C \
+            deploy_app.sh "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/opt/moyeo/app/deploy_app.sh"
+          ssh -i key.pem -p "$PORT" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" "chmod +x /opt/moyeo/app/deploy_app.sh"
+
+      - name: Remote deploy
+        run: |
+          ssh -i key.pem -p "${{ secrets.SSH_PORT || 22 }}" \
+            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" "bash /opt/moyeo/app/deploy_app.sh"
+
+      - name: Post-check (non-blocking)
+        run: |
+          ssh -i key.pem -p "${{ secrets.SSH_PORT || 22 }}" \
+            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
+            "docker compose -f /opt/moyeo/app/docker-compose.yml --env-file /opt/moyeo/app/.env.app.prod ps; \
+             curl -fsS -m 5 http://localhost:8080/actuator/health || true"
+      
