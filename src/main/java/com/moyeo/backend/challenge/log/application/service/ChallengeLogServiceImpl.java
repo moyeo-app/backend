@@ -60,7 +60,7 @@ public class ChallengeLogServiceImpl implements ChallengeLogService {
         User currentUser = userContextService.getCurrentUser();
         String userId = currentUser.getId();
 
-        challengeValidator.getValidContentChallengeById(challengeId);
+        challengeValidator.getValidDateAndContentChallengeById(challengeId);
         ChallengeParticipation participation = participationValidator.getValidParticipationByUserId(challengeId, userId);
         ChallengeLog challengeLog = logValidator.getValidLogById(logId);
         logValidator.validLogOwnership(participation.getId(), challengeLog.getParticipation().getId());

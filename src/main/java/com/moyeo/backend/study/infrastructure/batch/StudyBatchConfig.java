@@ -1,5 +1,6 @@
 package com.moyeo.backend.study.infrastructure.batch;
 
+import com.moyeo.backend.common.batch.LoggingJobExecutionListener;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -18,6 +19,7 @@ public class StudyBatchConfig {
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;
+    private final LoggingJobExecutionListener loggingJobExecutionListener;
 
     @Bean
     public Step aggregateStudyStep(StudyTasklet tasklet) {
@@ -30,6 +32,7 @@ public class StudyBatchConfig {
     public Job studyCalendarJob(@Qualifier("aggregateStudyStep") Step aggregateStudyStep) {
         return new JobBuilder("studyCalendarJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
+                .listener(loggingJobExecutionListener)
                 .start(aggregateStudyStep)
                 .build();
     }

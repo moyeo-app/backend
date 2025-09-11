@@ -21,6 +21,7 @@ public class StudyController implements StudyControllerDocs {
 
     private final StudyService studyService;
 
+    @Override
     @PostMapping("/aggregate")
     public ResponseEntity<ApiResponse<Void>> aggreate(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,

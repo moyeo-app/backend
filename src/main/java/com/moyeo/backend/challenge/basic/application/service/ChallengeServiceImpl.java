@@ -28,7 +28,9 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Slf4j(topic = "ChallengeService")
@@ -45,6 +47,7 @@ public class ChallengeServiceImpl implements ChallengeService {
     private final StringRedisTemplate redisTemplate;
     private final ChallengeValidator challengeValidator;
     private final PaymentValidator paymentValidator;
+    private final Clock clock;
 
     private static final Duration SLOTS_TTL = Duration.ofMinutes(5);
 
@@ -70,7 +73,7 @@ public class ChallengeServiceImpl implements ChallengeService {
                     ChallengeRedisKeyUtil.buildSlotsKey(challengeId),
                     String.valueOf(requestDto.getMaxParticipants() - 1),
                     Duration.between(
-                            LocalDateTime.now(),
+                            LocalDateTime.now(clock),
                             requestDto.getStartDate().atTime(23,59,59)
                     ).plusMinutes(5)
             );
@@ -85,13 +88,13 @@ public class ChallengeServiceImpl implements ChallengeService {
 
     @Override
     @Transactional(readOnly = true)
-    public ChallengeReadResponseDto getById(String id) {
-        Challenge challenge = challengeValidator.getValidChallengeById(id);
+    public ChallengeReadResponseDto getById(String challengeId) {
+        Challenge challenge = challengeValidator.getValidChallengeById(challengeId);
 
         User currentUser = userContextService.getCurrentUser();
         String userId = currentUser.getId();
 
-        boolean participating = participationRepository.existsByChallengeIdAndUserIdAndIsDeletedFalse(id, userId);
+        boolean participating = participationRepository.existsByChallengeIdAndUserIdAndIsDeletedFalse(challengeId, userId);
         return challengeMapper.toChallengeDto(challenge, participating);
     }
 
@@ -101,5 +104,12 @@ public class ChallengeServiceImpl implements ChallengeService {
 
         Page<ChallengeReadResponseDto> challenges = challengeInfoRepository.searchChallenges(requestDto, pageable);
         return pageMapper.toPageResponse(challenges);
+    }
+
+    @Override
+    @Transactional
+    public void updateStatus(LocalDate date) {
+        challengeInfoRepository.updateStatus(date);
+        log.info("챌린지 상태 업데이트 완료, date = {}", date);
     }
 }

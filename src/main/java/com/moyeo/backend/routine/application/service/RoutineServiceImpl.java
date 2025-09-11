@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -36,6 +37,7 @@ public class RoutineServiceImpl implements RoutineService {
     private final StudyCalendarRepository studyCalendarRepository;
     private final AiClient aiClient;
     private final RoutineReportRepository routineReportRepository;
+    private final Clock clock;
 
     @Value("${ai.gemini.name}")
     private String aiName;
@@ -49,7 +51,10 @@ public class RoutineServiceImpl implements RoutineService {
         LocalDate monday = weekEndDate.with(DayOfWeek.MONDAY);
 
         List<WeeklyAgg> list = studyCalendarRepository.findWeeklyAgg(monday, weekEndDate);
-        if (list.isEmpty()) return;
+        if (list.isEmpty()) {
+            log.info("주간 집계 데이터 없음, 주간 학습 통계 진행 안함, weekStart = {}", monday);
+            return;
+        }
 
         List<RoutineStatReadResponseDto> stats = list.stream()
                 .map(this::computeWeeklyAgg)
@@ -66,7 +71,7 @@ public class RoutineServiceImpl implements RoutineService {
         String userId = currentUser.getId();
 
         LocalDate startDate = requestDto.getDate() == null ?
-                LocalDate.now(ZoneId.of("Asia/Seoul")).with(previousOrSame(DayOfWeek.MONDAY)).minusWeeks(1)
+                LocalDate.now(clock).with(previousOrSame(DayOfWeek.MONDAY)).minusWeeks(1)
                 : requestDto.getDate().with(previousOrSame(DayOfWeek.MONDAY));
 
         RoutineStat routineStat = routineStatRepository.findByUserIdAndStartDateAndIsDeletedFalse(userId, startDate)
@@ -114,7 +119,7 @@ public class RoutineServiceImpl implements RoutineService {
         String userId = currentUser.getId();
 
         LocalDate startDate = requestDto.getDate() == null ?
-                LocalDate.now(ZoneId.of("Asia/Seoul")).with(previousOrSame(DayOfWeek.MONDAY)).minusWeeks(1)
+                LocalDate.now(clock).with(previousOrSame(DayOfWeek.MONDAY)).minusWeeks(1)
                 : requestDto.getDate().with(previousOrSame(DayOfWeek.MONDAY));
 
         RoutineReport routineReport = routineReportRepository.findByUserIdAndStartDateAndIsDeletedFalse(userId, startDate)
@@ -147,6 +152,7 @@ public class RoutineServiceImpl implements RoutineService {
                 .startDate(agg.startDate())
                 .totalMinutes(agg.totalMinutes())
                 .avgMinutes(agg.avgMinutes())
+                .activeDays(agg.activeDays())
                 .focusDay(focusDay)
                 .leastDay(leastDay)
                 .highAttendanceDays(highAttendanceDays)

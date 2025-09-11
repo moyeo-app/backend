@@ -11,7 +11,8 @@ public record WeeklyAgg(
         LocalDate startDate,
         int mon, int tue, int wed, int thu, int fri, int sat, int sun,
         int totalMinutes,
-        int avgMinutes
+        int avgMinutes,
+        int activeDays
 ) {
     @QueryProjection
     public WeeklyAgg {}

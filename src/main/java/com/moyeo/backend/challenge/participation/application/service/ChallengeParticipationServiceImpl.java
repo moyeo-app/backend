@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.time.LocalDate;
 
 @Slf4j(topic = "ChallengeParticipationService")
 @Service
@@ -89,6 +90,20 @@ public class ChallengeParticipationServiceImpl implements ChallengeParticipation
 
         Page<ChallengeParticipationReadResponseDto> participationList = participationRepository.findMyParticipation(userId, requestDto, pageable);
         return pageMapper.toPageResponse(participationList);
+    }
+
+    @Override
+    @Transactional
+    public void updateStatus(LocalDate date) {
+        participationRepository.updateStatus(date);
+        log.info("챌린지 참여 상태 업데이트 완료, date = {}", date);
+    }
+
+    @Override
+    @Transactional
+    public void updateWeeklyStatus(LocalDate date) {
+        participationRepository.updateWeeklyStatus(date);
+        log.info("주간 챌린지 참여 인증 상태 업데이트 완료, date = {}", date);
     }
 
     private void reserveSlotOrFail(String challengeId, Challenge challenge, String userId) {

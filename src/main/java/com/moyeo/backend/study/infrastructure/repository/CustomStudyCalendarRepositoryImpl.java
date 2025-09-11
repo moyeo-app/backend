@@ -6,6 +6,7 @@ import com.moyeo.backend.study.application.dto.QWeeklyAgg;
 import com.moyeo.backend.study.application.dto.WeeklyAgg;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -47,6 +48,15 @@ public class CustomStudyCalendarRepositoryImpl implements CustomStudyCalendarRep
 
         NumberExpression<Integer> totalMinutes = studyCalendar.totalMinutes.sum();
         NumberExpression<Integer> avgMinutes = totalMinutes.divide(7);
+        NumberExpression<Integer> activeDays =
+                new CaseBuilder().when(mon.gt(0)).then(1).otherwise(0)
+                        .add(new CaseBuilder().when(tue.gt(0)).then(1).otherwise(0))
+                        .add(new CaseBuilder().when(wed.gt(0)).then(1).otherwise(0))
+                        .add(new CaseBuilder().when(thu.gt(0)).then(1).otherwise(0))
+                        .add(new CaseBuilder().when(fri.gt(0)).then(1).otherwise(0))
+                        .add(new CaseBuilder().when(sat.gt(0)).then(1).otherwise(0))
+                        .add(new CaseBuilder().when(sun.gt(0)).then(1).otherwise(0));
+
 
         return jpaQueryFactory.select(new QWeeklyAgg(
                 studyCalendar.user.id,
@@ -54,7 +64,8 @@ public class CustomStudyCalendarRepositoryImpl implements CustomStudyCalendarRep
                 mon.coalesce(0), tue.coalesce(0), wed.coalesce(0),
                 thu.coalesce(0), fri.coalesce(0), sat.coalesce(0), sun.coalesce(0),
                 totalMinutes,
-                avgMinutes))
+                avgMinutes,
+                activeDays))
                 .from(studyCalendar)
                 .where(booleanBuilder(monday, sunday))
                 .groupBy(studyCalendar.user.id)

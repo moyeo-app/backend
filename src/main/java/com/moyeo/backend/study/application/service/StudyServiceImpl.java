@@ -3,6 +3,7 @@ package com.moyeo.backend.study.application.service;
 import com.moyeo.backend.auth.application.service.UserContextService;
 import com.moyeo.backend.challenge.log.application.dto.ChallengeLogDailyAggregateDto;
 import com.moyeo.backend.challenge.log.domain.ChallengeLogRepository;
+import com.moyeo.backend.challenge.participation.application.service.ChallengeParticipationService;
 import com.moyeo.backend.routine.application.service.RoutineService;
 import com.moyeo.backend.study.application.dto.DailyStudyDto;
 import com.moyeo.backend.study.application.dto.DateRange;
@@ -34,6 +35,7 @@ public class StudyServiceImpl implements StudyService {
     private final UserContextService userContextService;
     private final StudyCalendarValidator calendarValidator;
     private final RoutineService routineService;
+    private final ChallengeParticipationService participationService;
 
     @Override
     @Transactional
@@ -50,6 +52,8 @@ public class StudyServiceImpl implements StudyService {
         if (date.getDayOfWeek() == DayOfWeek.SUNDAY) {
             log.info("주간 학습 통계 처리 시도, weekEndDate = {}", date);
             routineService.upsertWeeklyStat(date);
+            log.info("주간 챌린지 참여 상태 처리 시도, weekEndDate = {}", date);
+            participationService.updateWeeklyStatus(date);
             log.info("루틴 리포트 생성 처리 시도, weekEndDate = {}", date);
             routineService.upsertWeeklyReport(date);
         }

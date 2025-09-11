@@ -5,7 +5,13 @@ import com.moyeo.backend.challenge.participation.application.dto.ChallengePartic
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
+
 public interface CustomChallengeParticipationRepository {
 
     Page<ChallengeParticipationReadResponseDto> findMyParticipation(String userId, ChallengeParticipationReadRequestDto requestDto, Pageable pageable);
+
+    void updateStatus(LocalDate date);
+
+    void updateWeeklyStatus(LocalDate date);
 }

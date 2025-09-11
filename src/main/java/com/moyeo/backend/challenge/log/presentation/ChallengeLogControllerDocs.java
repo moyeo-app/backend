@@ -14,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 public interface ChallengeLogControllerDocs {
 
     @Operation(summary = "챌린지 인증 키워드 입력 API", description = "챌린지 인증 키워드 입력 API 입니다.")
-    ResponseEntity<ApiResponse<ChallengeLogResponseDto>> create(String id, ChallengeLogKeywordRequestDto requestDto);
+    ResponseEntity<ApiResponse<ChallengeLogResponseDto>> create(String challengeId, ChallengeLogKeywordRequestDto requestDto);
 
     @Operation(summary = "챌린지 인증 내용 입력 API", description = "챌린지 인증 내용 입력 API 입니다.")
     ResponseEntity<ApiResponse<ChallengeLogResponseDto>> update(String challengeId,

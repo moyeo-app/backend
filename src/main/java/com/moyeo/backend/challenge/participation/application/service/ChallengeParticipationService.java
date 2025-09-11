@@ -6,6 +6,8 @@ import com.moyeo.backend.challenge.participation.application.dto.ChallengePartic
 import com.moyeo.backend.common.response.PageResponse;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
+
 public interface ChallengeParticipationService {
 
     Boolean check(String challengeId);
@@ -13,4 +15,8 @@ public interface ChallengeParticipationService {
     void participate(String challengeId, ChallengeParticipationRequestDto requestDto);
 
     PageResponse<ChallengeParticipationReadResponseDto> gets(ChallengeParticipationReadRequestDto requestDto, Pageable pageable);
+
+    void updateStatus(LocalDate date);
+
+    void updateWeeklyStatus(LocalDate date);
 }

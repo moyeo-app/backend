@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -22,20 +23,21 @@ public class RoutineStatUpsertRepositoryImpl implements RoutineStatUpsertReposit
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final AuditorAware<String> auditorAware;
     private final ObjectMapper objectMapper;
+    private final Clock clock;
 
     private static final int BATCH_SIZE = 500;
     private static final String SQL = """
         INSERT INTO routine_stat (
             id,
             user_id, start_date,
-            total_minutes, avg_minutes,
+            total_minutes, avg_minutes, active_days,
             focus_day, least_day, high_attendance_days,
             created_at, created_by, updated_at, updated_by, is_deleted
         )
         VALUES (
             :id,
             :userId, :startDate,
-            :totalMinutes, :avgMinutes,
+            :totalMinutes, :avgMinutes, :activeDays,
             :focusDay, :leastDay, CAST(:highAttendanceJson AS jsonb),
             :now, :actor, :now, :actor, false
         )
@@ -43,6 +45,7 @@ public class RoutineStatUpsertRepositoryImpl implements RoutineStatUpsertReposit
         DO UPDATE SET
             total_minutes = EXCLUDED.total_minutes,
             avg_minutes   = EXCLUDED.avg_minutes,
+            active_days   = EXCLUDED.active_days,
             focus_day     = EXCLUDED.focus_day,
             least_day     = EXCLUDED.least_day,
             high_attendance_days = EXCLUDED.high_attendance_days,
@@ -54,7 +57,7 @@ public class RoutineStatUpsertRepositoryImpl implements RoutineStatUpsertReposit
     @Override
     public void upsertAll(List<RoutineStatReadResponseDto> stats) {
         final String actor = auditorAware.getCurrentAuditor().orElse("SYSTEM");
-        final LocalDateTime now =  LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+        final LocalDateTime now =  LocalDateTime.now(clock);
 
         List<SqlParameterSource> buffer = new ArrayList<>(BATCH_SIZE);
 
@@ -75,6 +78,7 @@ public class RoutineStatUpsertRepositoryImpl implements RoutineStatUpsertReposit
                     .addValue("startDate", r.startDate())
                     .addValue("totalMinutes", r.totalMinutes())
                     .addValue("avgMinutes", r.avgMinutes())
+                    .addValue("activeDays", r.activeDays())
                     .addValue("focusDay", r.focusDay().name())
                     .addValue("leastDay", r.leastDay().name())
                     .addValue("highAttendanceJson", highJson)

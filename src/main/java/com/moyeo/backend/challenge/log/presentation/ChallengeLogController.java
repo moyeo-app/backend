@@ -20,6 +20,7 @@ public class ChallengeLogController implements  ChallengeLogControllerDocs{
 
     private final ChallengeLogService challengeLogService;
 
+    @Override
     @PostMapping("/{challengeId}/keywords")
     public ResponseEntity<ApiResponse<ChallengeLogResponseDto>> create(
             @PathVariable String challengeId,
@@ -29,6 +30,7 @@ public class ChallengeLogController implements  ChallengeLogControllerDocs{
         ));
     }
 
+    @Override
     @PatchMapping("/{challengeId}/logs/{logId}/text")
     public ResponseEntity<ApiResponse<ChallengeLogResponseDto>> update(
             @PathVariable String challengeId,
@@ -39,6 +41,7 @@ public class ChallengeLogController implements  ChallengeLogControllerDocs{
         ));
     }
 
+    @Override
     @GetMapping("/{challengeId}/logs")
     public ResponseEntity<ApiResponse<PageResponse<ChallengeLogReadResponseDto>>> gets(
             @PathVariable String challengeId,
@@ -48,6 +51,7 @@ public class ChallengeLogController implements  ChallengeLogControllerDocs{
                 challengeLogService.gets(challengeId, requestDto, page.toPageable())));
     }
 
+    @Override
     @GetMapping("/{challengeId}/logs/me")
     public ResponseEntity<ApiResponse<ChallengeLogReadResponseDto>> getByUser(@PathVariable String challengeId) {
         return ResponseEntity.ok().body(ApiResponse.success(

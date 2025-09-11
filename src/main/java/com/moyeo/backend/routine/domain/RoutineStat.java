@@ -38,6 +38,9 @@ public class RoutineStat extends BaseEntity {
     private int avgMinutes;
 
     @Column(nullable = false)
+    private int activeDays;
+
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private DayOfWeek focusDay;
 
