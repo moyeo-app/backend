@@ -15,9 +15,6 @@ concurrency:  # 중복 실행 방지
 jobs:
   build:  # CI: JAR 생성
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
     steps:
       - name: Checkout
         uses: actions/checkout@v4
