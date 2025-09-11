@@ -22,12 +22,14 @@ public class UserController implements UserControllerDocs{
 
     private final UserService userService;
 
+    @Override
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<UserResponseDto>> register(@Valid @RequestBody RegisterRequestDto requestDto) {
         log.info("oauthId : {}", requestDto.getOauthId());
         return ResponseEntity.ok().body(ApiResponse.success(userService.register(requestDto)));
     }
 
+    @Override
     @PostMapping("/valid/nickname")
     public ResponseEntity<ApiResponse<Void>> validNickname(@Valid @RequestBody NicknameRequestDto requestDto) {
         log.info("nickname : {}", requestDto.getNickname());

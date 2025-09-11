@@ -22,12 +22,14 @@ public class RoutineController implements RoutineControllerDocs {
 
     private final RoutineService routineService;
 
+    @Override
     @GetMapping("/stat/me")
     public ResponseEntity<ApiResponse<RoutineStatReadResponseDto>> getRoutineStat(
             @ParameterObject @ModelAttribute RoutineReadRequestDto requestDto) {
         return ResponseEntity.ok().body(ApiResponse.success(routineService.getRoutineStat(requestDto)));
     }
 
+    @Override
     @GetMapping("/report/me")
     public ResponseEntity<ApiResponse<RoutineReportReadResponseDto>> getRoutineReport(
             @ParameterObject @ModelAttribute RoutineReadRequestDto requestDto) {

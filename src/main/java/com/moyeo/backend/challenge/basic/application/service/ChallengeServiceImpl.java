@@ -88,13 +88,13 @@ public class ChallengeServiceImpl implements ChallengeService {
 
     @Override
     @Transactional(readOnly = true)
-    public ChallengeReadResponseDto getById(String id) {
-        Challenge challenge = challengeValidator.getValidChallengeById(id);
+    public ChallengeReadResponseDto getById(String challengeId) {
+        Challenge challenge = challengeValidator.getValidChallengeById(challengeId);
 
         User currentUser = userContextService.getCurrentUser();
         String userId = currentUser.getId();
 
-        boolean participating = participationRepository.existsByChallengeIdAndUserIdAndIsDeletedFalse(id, userId);
+        boolean participating = participationRepository.existsByChallengeIdAndUserIdAndIsDeletedFalse(challengeId, userId);
         return challengeMapper.toChallengeDto(challenge, participating);
     }
 

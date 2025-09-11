@@ -19,11 +19,10 @@ import java.time.LocalDate;
 public interface ChallengeParticipationControllerDocs {
 
     @Operation(summary = "챌린지 참여 가능 여부 확인 API", description = "챌린지 참여 가능 여부 확인 API 입니다.")
-    ResponseEntity<ApiResponse<Boolean>> check(String id);
-
+    ResponseEntity<ApiResponse<Boolean>> check(String challengeId);
 
     @Operation(summary = "챌린지 참여 API", description = "챌린지 참여 API 입니다.")
-    ResponseEntity<ApiResponse<Void>> participate(String id, ChallengeParticipationRequestDto requestDto);
+    ResponseEntity<ApiResponse<Void>> participate(String challengeId, ChallengeParticipationRequestDto requestDto);
 
     @Operation(summary = "챌린지 참여 목록 조회 API", description = "챌린지 목록 조회 API 입니다.")
     ResponseEntity<ApiResponse<PageResponse<ChallengeParticipationReadResponseDto>>> gets(

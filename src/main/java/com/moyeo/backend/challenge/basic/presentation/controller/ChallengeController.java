@@ -26,18 +26,21 @@ public class ChallengeController implements ChallengeControllerDocs{
 
     private final ChallengeService challengeService;
 
+    @Override
     @PostMapping
     public ResponseEntity<ApiResponse<ChallengeResponseDto>> create(@Valid @RequestBody ChallengeCreateRequestDto requestDto) {
         log.info("PaymentId : {}", requestDto.getPaymentId());
         return ResponseEntity.ok().body(ApiResponse.success(challengeService.create(requestDto)));
     }
 
+    @Override
     @GetMapping("/{challengeId}")
     public ResponseEntity<ApiResponse<ChallengeReadResponseDto>> getById(@PathVariable String challengeId) {
         log.info("ChallengeId : {}", challengeId);
         return ResponseEntity.ok().body(ApiResponse.success(challengeService.getById(challengeId)));
     }
 
+    @Override
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<ChallengeReadResponseDto>>> gets(
             @ParameterObject @ModelAttribute ChallengeReadRequestDto requestDto,
@@ -49,6 +52,7 @@ public class ChallengeController implements ChallengeControllerDocs{
         return ResponseEntity.ok().body(ApiResponse.success(challengeService.gets(requestDto, page.toPageable())));
     }
 
+    @Override
     @PostMapping("/status")
     public ResponseEntity<ApiResponse<Void>> updateStatus(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,

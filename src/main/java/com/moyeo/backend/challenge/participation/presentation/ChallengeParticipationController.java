@@ -25,6 +25,7 @@ public class ChallengeParticipationController implements ChallengeParticipationC
 
     private final ChallengeParticipationService challengeParticipationService;
 
+    @Override
     @GetMapping("/{challengeId}/check")
     public ResponseEntity<ApiResponse<Boolean>> check(@PathVariable String challengeId) {
         return ResponseEntity.ok().body(ApiResponse.success(
@@ -32,6 +33,7 @@ public class ChallengeParticipationController implements ChallengeParticipationC
         ));
     }
 
+    @Override
     @PostMapping("/{challengeId}/participates")
     public ResponseEntity<ApiResponse<Void>> participate(
             @PathVariable String challengeId,
@@ -40,6 +42,7 @@ public class ChallengeParticipationController implements ChallengeParticipationC
         return ResponseEntity.ok().body(ApiResponse.success());
     }
 
+    @Override
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<PageResponse<ChallengeParticipationReadResponseDto>>> gets(
             @ParameterObject @ModelAttribute ChallengeParticipationReadRequestDto requestDto,
@@ -47,6 +50,7 @@ public class ChallengeParticipationController implements ChallengeParticipationC
         return ResponseEntity.ok().body(ApiResponse.success(challengeParticipationService.gets(requestDto, page.toPageable())));
     }
 
+    @Override
     @PostMapping("/participates/status")
     public ResponseEntity<ApiResponse<Void>> updateStatus(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,

@@ -13,7 +13,7 @@ public interface ChallengeService {
 
     ChallengeResponseDto create(ChallengeCreateRequestDto requestDto);
 
-    ChallengeReadResponseDto getById(String id);
+    ChallengeReadResponseDto getById(String challengeId);
 
     PageResponse<ChallengeReadResponseDto> gets(ChallengeReadRequestDto requestDto, Pageable pageable);
 

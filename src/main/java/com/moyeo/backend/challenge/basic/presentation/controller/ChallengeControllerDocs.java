@@ -22,7 +22,7 @@ public interface ChallengeControllerDocs {
     ResponseEntity<ApiResponse<ChallengeResponseDto>> create(ChallengeCreateRequestDto requestDto);
 
     @Operation(summary = "챌린지 단건 조회 API", description = "챌린지 단건 조회 API 입니다.")
-    ResponseEntity<ApiResponse<ChallengeReadResponseDto>> getById(String id);
+    ResponseEntity<ApiResponse<ChallengeReadResponseDto>> getById(String challengeId);
 
     @Operation(summary = "챌린지 목록 조회 API", description = "챌린지 목록 조회 API 입니다.")
     ResponseEntity<ApiResponse<PageResponse<ChallengeReadResponseDto>>> gets(

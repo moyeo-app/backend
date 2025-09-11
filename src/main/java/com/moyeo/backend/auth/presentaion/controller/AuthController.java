@@ -19,6 +19,7 @@ public class AuthController implements AuthControllerDocs {
 
     private final AuthService authService;
 
+    @Override
     @PostMapping("/{provider}")
     public ResponseEntity<ApiResponse<LoginResponseDto>> login(
             @PathVariable String provider,
@@ -27,6 +28,7 @@ public class AuthController implements AuthControllerDocs {
         return ResponseEntity.ok().body(ApiResponse.success(authService.login(provider, requestDto)));
     }
 
+    @Override
     @PostMapping("/{provider}/callback")
     public ResponseEntity<ApiResponse<LoginResponseDto>> callback(
             @PathVariable String provider,
