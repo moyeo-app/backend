@@ -32,7 +32,7 @@ SLEEP_SECS=${SLEEP_SECS:-2}  # 각 시도 간 대기(기본 2초)
 echo "Waiting for health: $HEALTH_URL"
 ok=0
 for i in $(seq 1 "$MAX_TRIES"); do
-  if curl -sS -m 5 "$HEALTH_URL" | grep -q '"status"\s*:\s*"UP"'; then
+  if curl -fsS -m 5 "$HEALTH_URL" | jq -e '.status=="UP"' >/dev/null; then
     echo "Health is UP"
     ok=1
     break
