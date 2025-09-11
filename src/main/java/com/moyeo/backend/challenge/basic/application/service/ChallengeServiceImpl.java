@@ -28,6 +28,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -46,6 +47,7 @@ public class ChallengeServiceImpl implements ChallengeService {
     private final StringRedisTemplate redisTemplate;
     private final ChallengeValidator challengeValidator;
     private final PaymentValidator paymentValidator;
+    private final Clock clock;
 
     private static final Duration SLOTS_TTL = Duration.ofMinutes(5);
 
@@ -71,7 +73,7 @@ public class ChallengeServiceImpl implements ChallengeService {
                     ChallengeRedisKeyUtil.buildSlotsKey(challengeId),
                     String.valueOf(requestDto.getMaxParticipants() - 1),
                     Duration.between(
-                            LocalDateTime.now(),
+                            LocalDateTime.now(clock),
                             requestDto.getStartDate().atTime(23,59,59)
                     ).plusMinutes(5)
             );

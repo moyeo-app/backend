@@ -21,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 
+import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -39,6 +40,7 @@ public class CustomChallengeParticipationRepositoryImpl implements CustomChallen
     private final JPAQueryFactory jpaQueryFactory;
     private final EntityManager entityManager;
     private final ChallengeParticipationMapper participationMapper;
+    private final Clock clock;
 
     private static final Map<String, ComparableExpressionBase<?>> SORT_PARAMS = Map.of(
             "createdAt", challengeParticipation.createdAt
@@ -80,7 +82,7 @@ public class CustomChallengeParticipationRepositoryImpl implements CustomChallen
         long toInProgress = jpaQueryFactory
                 .update(challengeParticipation)
                 .set(challengeParticipation.status, ParticipationStatus.INPROGRESS)
-                .set(challengeParticipation.updatedAt, LocalDateTime.now())
+                .set(challengeParticipation.updatedAt, LocalDateTime.now(clock))
                 .where(isDeletedFalse()
                                 .and(challengeParticipation.status.isNull())
                                 .and(challengeParticipation.challenge.startDate.loe(date)))
@@ -89,7 +91,7 @@ public class CustomChallengeParticipationRepositoryImpl implements CustomChallen
         long toEnd = jpaQueryFactory
                 .update(challengeParticipation)
                 .set(challengeParticipation.status, ParticipationStatus.END)
-                .set(challengeParticipation.updatedAt, LocalDateTime.now())
+                .set(challengeParticipation.updatedAt, LocalDateTime.now(clock))
                 .where(isDeletedFalse()
                                 .and(challengeParticipation.status.eq(ParticipationStatus.INPROGRESS))
                                 .and(challengeParticipation.challenge.endDate.lt(date)))
@@ -135,7 +137,7 @@ public class CustomChallengeParticipationRepositoryImpl implements CustomChallen
         long toFailed = jpaQueryFactory
                 .update(challengeParticipation)
                 .set(challengeParticipation.status, ParticipationStatus.FAILED)
-                .set(challengeParticipation.updatedAt, LocalDateTime.now())
+                .set(challengeParticipation.updatedAt, LocalDateTime.now(clock))
                 .where(isDeletedFalse()
                         .and(challengeParticipation.status.in(ParticipationStatus.INPROGRESS, ParticipationStatus.END))
                         .and(failExists))

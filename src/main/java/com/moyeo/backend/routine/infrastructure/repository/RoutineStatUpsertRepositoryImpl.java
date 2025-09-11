@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ public class RoutineStatUpsertRepositoryImpl implements RoutineStatUpsertReposit
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final AuditorAware<String> auditorAware;
     private final ObjectMapper objectMapper;
+    private final Clock clock;
 
     private static final int BATCH_SIZE = 500;
     private static final String SQL = """
@@ -55,7 +57,7 @@ public class RoutineStatUpsertRepositoryImpl implements RoutineStatUpsertReposit
     @Override
     public void upsertAll(List<RoutineStatReadResponseDto> stats) {
         final String actor = auditorAware.getCurrentAuditor().orElse("SYSTEM");
-        final LocalDateTime now =  LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+        final LocalDateTime now =  LocalDateTime.now(clock);
 
         List<SqlParameterSource> buffer = new ArrayList<>(BATCH_SIZE);
 

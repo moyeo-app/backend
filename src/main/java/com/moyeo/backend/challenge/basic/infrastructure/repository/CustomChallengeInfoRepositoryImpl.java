@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,6 +35,7 @@ public class CustomChallengeInfoRepositoryImpl implements CustomChallengeInfoRep
     private final JPAQueryFactory jpaQueryFactory;
     private final EntityManager entityManager;
     private final ChallengeMapper challengeMapper;
+    private final Clock clock;
 
     private static final Map<String, ComparableExpressionBase<?>> SORT_PARAMS = Map.of(
             "title", challenge.title,
@@ -78,7 +80,7 @@ public class CustomChallengeInfoRepositoryImpl implements CustomChallengeInfoRep
         long toInProgress = jpaQueryFactory
                 .update(challenge)
                 .set(challenge.status, ChallengeStatus.INPROGRESS)
-                .set(challenge.updatedAt, LocalDateTime.now())
+                .set(challenge.updatedAt, LocalDateTime.now(clock))
                 .where(toInProgressBooleanBuilder)
                 .execute();
 
@@ -87,7 +89,7 @@ public class CustomChallengeInfoRepositoryImpl implements CustomChallengeInfoRep
         long toEnd = jpaQueryFactory
                 .update(challenge)
                 .set(challenge.status, ChallengeStatus.END)
-                .set(challenge.updatedAt, LocalDateTime.now())
+                .set(challenge.updatedAt, LocalDateTime.now(clock))
                 .where(toEndBooleanBuilder)
                 .execute();
 

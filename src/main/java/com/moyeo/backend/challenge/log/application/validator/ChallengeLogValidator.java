@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
@@ -23,6 +24,7 @@ import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 public class ChallengeLogValidator {
 
     private final ChallengeLogRepository logRepository;
+    private final Clock clock;
 
     public ChallengeLog getValidLogById(String logId) {
         return logRepository.findByIdAndIsDeletedFalse(logId)
@@ -38,7 +40,7 @@ public class ChallengeLogValidator {
     public void validText(String logId, String text) {
         ChallengeLog challengeLog = getValidLogById(logId);
 
-        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
+        LocalDate today = LocalDate.now(clock);
         if (!today.equals(challengeLog.getDate())) {
             throw new CustomException(ErrorCode.CHALLENGE_LOG_DATE_MISMATCH);
         }
@@ -62,7 +64,7 @@ public class ChallengeLogValidator {
     }
 
     public ChallengeLog getValidLogByUser(String participationId) {
-        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
+        LocalDate today = LocalDate.now(clock);
         return logRepository.findByParticipationIdAndIsDeletedFalseAndDate(participationId, today)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHALLENGE_LOG_NOT_FOUND));
     }
