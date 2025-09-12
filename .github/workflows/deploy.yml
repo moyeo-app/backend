@@ -68,7 +68,7 @@ jobs:
         run: |
           PORT="${{ secrets.SSH_PORT }}"; PORT=${PORT:-22}
           scp -i key.pem -P "$PORT" -C \
-            app-jar/*.jar "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/tmp/app.jar"
+            *.jar "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/tmp/app.jar"
 
       - name: Push deploy script
         run: |

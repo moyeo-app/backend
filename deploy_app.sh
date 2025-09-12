@@ -22,30 +22,23 @@ fi
 mv /tmp/app.jar "$APP_DIR/app.jar"
 
 # 백엔드만 재기동
-docker compose --env-file "$ENV_FILE" up -d --no-deps --force-recreate backend
+docker compose --env-file "$ENV_FILE" up -d --no-deps --force-recreate --wait --wait-timeout ${WAIT_TIMEOUT:-1200} backend
 
-# ==== 헬스 체크 (retry with backoff) ====
-HEALTH_URL=${HEALTH_URL:-http://localhost:8080/actuator/health}
-MAX_TRIES=${MAX_TRIES:-15}   # 총 시도 횟수(기본 15회)
-SLEEP_SECS=${SLEEP_SECS:-2}  # 각 시도 간 대기(기본 2초)
-
-echo "Waiting for health: $HEALTH_URL"
-ok=0
-for i in $(seq 1 "$MAX_TRIES"); do
-  if curl -fsS -m 5 "$HEALTH_URL" | jq -e '.status=="UP"' >/dev/null; then
-    echo "Health is UP"
-    ok=1
-    break
+# ==== 헬스 체크 ====
+echo "[deploy] waiting for backend health..."
+for i in $(seq 1 50); do
+  status=$(docker inspect -f '{{.State.Health.Status}}' moyeo-backend 2>/dev/null || echo starting)
+  if [ "$status" = "healthy" ]; then
+    echo "[deploy] backend healthy ✅"
+    exit 0
   fi
-  echo "[$i/$MAX_TRIES] not ready yet... retrying in ${SLEEP_SECS}s"
-  sleep "$SLEEP_SECS"
+  if [ "$status" = "unhealthy" ]; then
+    echo "[deploy] backend unhealthy (try $i) ❌"
+  else
+    echo "[deploy] backend status: $status (try $i)"
+  fi
+  sleep 20
 done
-
-if [[ "${ok:-0}" -ne 1 ]]; then
-  echo "Health check failed; printing last 100 lines:"
-  docker logs --tail=100 moyeo-backend || true
-  exit 1
-fi
 # ==== 헬스 체크 끝 ====
 
 echo "Deploy OK"
