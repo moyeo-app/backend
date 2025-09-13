@@ -30,7 +30,7 @@ SLEPT=0
 
 is_ready_log() {
   local logs
-  logs=$(docker logs --since 30s moyeo-backend 2>/dev/null || true)
+  logs=$(docker compose --env-file "$ENV_FILE" logs --since 30s backend 2>/dev/null || true)
   if echo "$logs" | grep -q 'APP_READY'; then
     return 0
   fi
@@ -50,8 +50,9 @@ while (( SLEPT < WAIT )); do
     exit 0
   fi
   # 부팅 실패 빠른 감지
-  if docker logs moyeo-backend --since 30s | grep -q "Application run failed"; then
-    echo "[deploy] Spring Boot failed to start. Last logs:"; docker logs --tail=200 moyeo-backend || true
+  if docker compose --env-file "$ENV_FILE" logs --since 30s backend 2>/dev/null | grep -q "Application run failed"; then
+    echo "[deploy] Spring Boot failed to start. Last logs:";
+    docker compose --env-file "$ENV_FILE" logs --tail=200 backend || true
     exit 1
   fi
   sleep "$STEP"; SLEPT=$((SLEPT + STEP)); (( STEP<10 )) && STEP=$((STEP+1))
