@@ -25,20 +25,40 @@ mv /tmp/app.jar "$APP_DIR/app.jar"
 docker compose --env-file "$ENV_FILE" up -d --no-deps --force-recreate --wait --wait-timeout ${WAIT_TIMEOUT:-1200} backend
 
 # ==== 헬스 체크 ====
-echo "[deploy] waiting for backend health..."
-for i in $(seq 1 50); do
-  status=$(docker inspect -f '{{.State.Health.Status}}' moyeo-backend 2>/dev/null || echo starting)
-  if [ "$status" = "healthy" ]; then
-    echo "[deploy] backend healthy ✅"
+WAIT=${WAIT_TIMEOUT:-1200}
+SLEPT=0
+
+is_ready_log() {
+  local logs
+  logs=$(docker compose --env-file "$ENV_FILE" logs --since 30s backend 2>/dev/null || true)
+  if echo "$logs" | grep -q 'APP_READY'; then
+    return 0
+  fi
+  if echo "$logs" | grep -q 'Tomcat started on port' && \
+     echo "$logs" | grep -q 'DispatcherServlet - Completed initialization'; then
+    return 0
+  fi
+  return 1
+}
+
+echo "[deploy] waiting app readiness (timeout=${WAIT}s)"
+STEP=2
+while (( SLEPT < WAIT )); do
+  if is_ready_log; then
+    echo "[deploy] READY ✅"
+    echo "Deploy OK"
     exit 0
   fi
-  if [ "$status" = "unhealthy" ]; then
-    echo "[deploy] backend unhealthy (try $i) ❌"
-  else
-    echo "[deploy] backend status: $status (try $i)"
+  # 부팅 실패 빠른 감지
+  if docker compose --env-file "$ENV_FILE" logs --since 30s backend 2>/dev/null | grep -q "Application run failed"; then
+    echo "[deploy] Spring Boot failed to start. Last logs:";
+    docker compose --env-file "$ENV_FILE" logs --tail=200 backend || true
+    exit 1
   fi
-  sleep 20
+  sleep "$STEP"; SLEPT=$((SLEPT + STEP)); (( STEP<10 )) && STEP=$((STEP+1))
+  echo "[deploy] not ready yet... ${SLEPT}s elapsed"
 done
-# ==== 헬스 체크 끝 ====
 
-echo "Deploy OK"
+echo "[deploy] timeout. last logs:"
+docker logs --tail=200 moyeo-backend || true
+exit 1
